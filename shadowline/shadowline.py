@@ -440,8 +440,11 @@ def incidents(incident_id, iocs, csv_, output_file, json_, raw):
             sl_helpers.handle_json_output(json_data, raw)
         else:
             click.echo(t.blue("Incident summary"))
-            for entry in json_data['content']:
-                click.echo('id: {}'.format(entry['id']))
+            if incident_id:
+                click.echo('Scope: {} Type: {} Sub-type: {} Severity: {} Title: {}'.format(json_data['scope'], json_data['type'], json_data['subType'], json_data['severity'], json_data['title']))
+            else:
+                for entry in json_data['content']:
+                    click.echo('id: {}'.format(entry['id']))
     else:
         click.echo(response.status_code)
         click.echo(response.text)
