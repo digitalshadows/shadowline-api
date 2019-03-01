@@ -87,7 +87,7 @@ Total Usernames: 157
     1 usernames for domain test.com
 ```
 
-Shadowline queries will return results in a summary format by default, as shown in the example above. Shadowline also supports (pretty printed) JSON and CSV output (optionally to a file).
+Shadowline queries will return results in a summary format by default, as shown in the example above. Shadowline also supports (pretty printed) JSON and CSV output (optionally to a file). Shadowline currently does not support explicitly writing JSON to a file. If this is required, please use the `--json` and `--raw` flags and redirect the output to file.
 
 #### JSON pretty print
 
