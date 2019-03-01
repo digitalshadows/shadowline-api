@@ -34,7 +34,7 @@ def main(ctx, profile):
         # create_profile method can be called without existing credentials
         pass
     else:
-        click.echo("Running with profile: {}".format(profile))
+        #click.echo("Running with profile: {}".format(profile))
         if os.path.exists(PROFILE_FILE):
             import configparser
             config = configparser.ConfigParser()
@@ -289,7 +289,6 @@ def ip_whois_search(ip_addr):
 
 
 @main.command('ipaddr_whois', short_help='Lookup the WHOIS information for an IP address')
-@click.option('--ip_addr', help='Provide an IP address to operate on', type=str)
 @click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
 @click.option('--output_file', '-o', help='Filename to write the output to')
 @click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
@@ -417,15 +416,18 @@ def threats(incident_id, iocs, json_, raw):
 
 
 @main.command('incidents', short_help='Retrieve all incidents or an incident')
+@click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
 @click.option('--iocs', help='Retrieve the IOCs for a threat record', default=False, is_flag=True)
 @click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
 @click.option('--output_file', '-o', help='Filename to write the output to')
 @click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
 @click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
-@click.argument('incident_id')
 def incidents(incident_id, iocs, csv_, output_file, json_, raw):
-
-    response = api_call("{}{}".format(sl_constants.INCIDENTS_CMD, sl_constants.INCIDENTS_FIND_CMD), 'get')
+    response = ""
+    if incident_id:
+        response = api_call("{}{}".format(sl_constants.INCIDENTS_CMD, incident_id), 'get')
+    else:
+        response = api_call("{}{}".format(sl_constants.INCIDENTS_CMD, sl_constants.INCIDENTS_FIND_CMD), 'get')
     if response.status_code == 200:
         json_data = response.json()
         if csv_:
@@ -438,9 +440,14 @@ def incidents(incident_id, iocs, csv_, output_file, json_, raw):
             sl_helpers.handle_json_output(json_data, raw)
         else:
             print(t.blue("Incident summary"))
-            for entry in json_data['content']:
-                print('id: {}'.format(entry['id']))
-
+            if incident_id:
+                print
+            else:
+                for entry in json_data['content']:
+                    click('id: {}'.format(entry['id']))
+    else:
+        print(response.status_code)
+        print(response.text)
 
 @main.command('indicator', short_help='search for an IP address as an Indicator Of Compromise')
 @click.option('--ipaddr', help='Provide an IP address to query', type=str)
