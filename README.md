@@ -9,7 +9,7 @@ Shadowline can be invoked with `shadowline`. It is written in Python 3.
 Shadowline can be installed on Linux by running from the project root:
 
 ```bash
-sudo pip install .
+sudo -H pip install .
 ```
 
 Shadowline requires the following dependencies:
