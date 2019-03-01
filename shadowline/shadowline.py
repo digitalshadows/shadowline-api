@@ -123,10 +123,10 @@ def databreach_summary(csv_, output_file, json_, raw):
             if response.status_code == 200:
                 click.echo("{} {}".format(t.blue("Total Breaches:"), t.white("{}".format(json_data['totalBreaches']))))
                 for breach in json_data['breachesPerDomain']:
-                    click.echo(t.move_right, t.move_right, t.yellow("{} breaches for domain {}".format(breach['count'], breach['key'])))
-                click.echo(t.blue("Total Usernames:"), t.white("{}".format(json_data['totalUsernames'])))
+                    print(t.move_right, t.move_right, t.yellow("{} breaches for domain {}".format(breach['count'], breach['key'])))
+                click.echo("{} {}".format(t.blue("Total Usernames:"), t.white("{}".format(json_data['totalUsernames']))))
                 for usernames in json_data['usernamesPerDomain']:
-                    click.echo(t.move_right, t.move_right, t.yellow("{} usernames for domain {}".format(usernames['count'], usernames['key'])))
+                    print(t.move_right, t.move_right, t.yellow("{} usernames for domain {}".format(usernames['count'], usernames['key'])))
             else:
                 click.echo(response.status_code)
                 click.echo(response.text)
@@ -160,18 +160,18 @@ def databreach_list(breach_id, csv_, output_file, json_, raw):
                 click.echo(t.blue("Total Breaches"), t.white("{}".format(len(json_data['content']))))
                 for breach in json_data['content']:
                     click.echo(t.blue("Title"), t.white("{}".format(breach['title'])))
-                    click.echo(t.move_right, t.move_right, t.yellow("number of usernames impacted for organization"), t.cyan("{}".format(breach['organisationUsernameCount'])))
-                    click.echo(t.move_right, t.move_right, t.yellow("breach published on"), t.cyan("{}".format(breach['published'])))
-                    click.echo(t.move_right, t.move_right, t.yellow("severity"), t.cyan("{}".format(breach['incident']['severity'])))
-                    click.echo(t.move_right, t.move_right, t.yellow("breach ID"), t.cyan("{}".format(breach['id'])))
+                    print(t.move_right, t.move_right, t.yellow("number of usernames impacted for organization"), t.cyan("{}".format(breach['organisationUsernameCount'])))
+                    print(t.move_right, t.move_right, t.yellow("breach published on"), t.cyan("{}".format(breach['published'])))
+                    print(t.move_right, t.move_right, t.yellow("severity"), t.cyan("{}".format(breach['incident']['severity'])))
+                    print(t.move_right, t.move_right, t.yellow("breach ID"), t.cyan("{}".format(breach['id'])))
             else:
                 click.echo(t.blue("Title"), t.white("{}".format(json_data['title'])))
-                click.echo(t.move_right, t.move_right, t.yellow("breach occurred on"), t.cyan("{}".format(json_data['occurred'])))
-                click.echo(t.move_right, t.move_right, t.yellow("severity"), t.cyan("{}".format(json_data['incident']['severity'])))
-                click.echo(t.move_right, t.move_right, t.yellow("breach ID"), t.cyan("{}".format(json_data['id'])))
-                click.echo(t.move_right, t.move_right, t.yellow("data classes in breach"))
+                print(t.move_right, t.move_right, t.yellow("breach occurred on"), t.cyan("{}".format(json_data['occurred'])))
+                print(t.move_right, t.move_right, t.yellow("severity"), t.cyan("{}".format(json_data['incident']['severity'])))
+                print(t.move_right, t.move_right, t.yellow("breach ID"), t.cyan("{}".format(json_data['id'])))
+                print(t.move_right, t.move_right, t.yellow("data classes in breach"))
                 for data_class in json_data['dataClasses']:
-                    click.echo(t.move_right, t.move_right, t.move_right, t.move_right, t.yellow("data classes in breach"), t.cyan("{}".format(data_class)))
+                    print(t.move_right, t.move_right, t.move_right, t.move_right, t.yellow("data classes in breach"), t.cyan("{}".format(data_class)))
     else:
         click.echo(response.status_code)
         click.echo(response.text)
@@ -199,7 +199,7 @@ def databreach_usernames(breach_id, csv_, output_file, json_, raw):
         else:
             click.echo(t.blue("Total Usernames"), t.white("{}".format(len(json_data['content']))))
             for row in json_data['content']:
-                click.echo(t.move_right, t.move_right, t.yellow("username"), t.cyan("{}".format(row['username'])), t.yellow("breach count"), t.cyan("{}".format(row['breachCount'])))
+                print(t.move_right, t.move_right, t.yellow("username"), t.cyan("{}".format(row['username'])), t.yellow("breach count"), t.cyan("{}".format(row['breachCount'])))
 
 
 @main.command('domain_lookup', short_help='Perform a DNS lookup for a domain')
@@ -225,7 +225,7 @@ def domain_lookup(domain, csv_, output_file, json_, raw):
             click.echo(t.blue("Results for domain"), t.white("{}".format(domain)), t.blue("from DNS server"), t.white("{}".format(json_data['dnsServerIpAddress'])))
             for record in json_data['dnsZone']['records']:
                 if 'type' in record:
-                    click.echo(t.move_right, t.move_right, t.yellow("type"), t.cyan("{}".format(record['type'])), t.yellow("data"), t.cyan("{}".format(record['data'])))
+                    print(t.move_right, t.move_right, t.yellow("type"), t.cyan("{}".format(record['type'])), t.yellow("data"), t.cyan("{}".format(record['data'])))
     else:
         click.echo("Response status code: {}".format(response.status_code))
         click.echo(response.text)
@@ -264,8 +264,8 @@ def domain_whois(domain, csv_, output_file, json_, raw):
             click.echo(t.blue("Results for domain"))
             if 'registrant' in json_data:
                 if 'email' in json_data['registrant'] and 'name' in json_data['registrant'] and 'organization' in json_data['registrant'] and 'telephone' in json_data['registrant']:
-                    click.echo(t.move_right, t.move_right, t.yellow("email"), t.cyan("{}".format(json_data['registrant']['email'])), t.yellow("name"), t.cyan("{}".format(json_data['registrant']['name'])), t.yellow("organization"), t.cyan("{}".format(json_data['registrant']['organization'])), t.yellow("telephone"), t.cyan("{}".format(json_data['registrant']['telephone'])))
-                    click.echo(t.move_right, t.move_right, t.yellow("street"), t.cyan("{}".format(json_data['registrant']['address']['street1'])), t.yellow("city"), t.cyan("{}".format(json_data['registrant']['address']['city'])), t.yellow("state"), t.cyan("{}".format(json_data['registrant']['address']['state'])), t.yellow("country"), t.cyan("{}".format(json_data['registrant']['address']['country'])))
+                    print(t.move_right, t.move_right, t.yellow("email"), t.cyan("{}".format(json_data['registrant']['email'])), t.yellow("name"), t.cyan("{}".format(json_data['registrant']['name'])), t.yellow("organization"), t.cyan("{}".format(json_data['registrant']['organization'])), t.yellow("telephone"), t.cyan("{}".format(json_data['registrant']['telephone'])))
+                    print(t.move_right, t.move_right, t.yellow("street"), t.cyan("{}".format(json_data['registrant']['address']['street1'])), t.yellow("city"), t.cyan("{}".format(json_data['registrant']['address']['city'])), t.yellow("state"), t.cyan("{}".format(json_data['registrant']['address']['state'])), t.yellow("country"), t.cyan("{}".format(json_data['registrant']['address']['country'])))
                 else:
                     click.echo("Registrant data missing, suggest using --json to review the raw output")
     else:
@@ -312,7 +312,7 @@ def ipaddr_whois(ip_addr, csv_, output_file, json_, raw):
                 sl_helpers.handle_json_output(json_data, raw)
             else:
                 click.echo(t.blue("IP address"), t.green("{}".format(ip_addr)))
-                click.echo(t.move_right, t.move_right, t.yellow("NetName"), t.cyan(json_data['netName']), t.yellow("Country"), t.cyan(json_data['countryName']), t.yellow("IP range start"), t.cyan(json_data['ipRangeStart']), t.yellow("IP range end"), t.cyan(json_data['ipRangeEnd']))
+                print(t.move_right, t.move_right, t.yellow("NetName"), t.cyan(json_data['netName']), t.yellow("Country"), t.cyan(json_data['countryName']), t.yellow("IP range start"), t.cyan(json_data['ipRangeStart']), t.yellow("IP range end"), t.cyan(json_data['ipRangeEnd']))
         else:
             click.echo(response.status_code)
             click.echo(response.text)
@@ -349,7 +349,7 @@ def cve_search(cve, csv_, output_file, json_, raw):
                     click.echo(t.blue("Description"), t.white(cve_entry['entity']['description']))
                     if len(cve_entry['entity']['cvss2Score'])>1:
                         click.echo(t.blue("CVSS2 score"))
-                        click.echo(t.move_right, t.move_right, t.yellow("Access Complexity"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['accessComplexity'])), t.yellow("Authentication"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['authentication'])), t.yellow("Availability Impact"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['availabilityImpact'])), t.yellow("Base Score"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['baseScore'])), t.yellow("Confidentiality Impact"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['confidentialityImpact'])), t.yellow("Integrity Impact"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['integrityImpact'])))
+                        print(t.move_right, t.move_right, t.yellow("Access Complexity"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['accessComplexity'])), t.yellow("Authentication"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['authentication'])), t.yellow("Availability Impact"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['availabilityImpact'])), t.yellow("Base Score"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['baseScore'])), t.yellow("Confidentiality Impact"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['confidentialityImpact'])), t.yellow("Integrity Impact"), t.cyan("{}".format(cve_entry['entity']['cvss2Score']['integrityImpact'])))
                     click.echo(t.blue("Affected CPE summary"))
                     cpe_list = []
                     for entry in cve_entry['entity']['relatedCPEs']:
@@ -357,7 +357,7 @@ def cve_search(cve, csv_, output_file, json_, raw):
                         if cpe not in cpe_list:
                             cpe_list.append(cpe)
                 
-                    click.echo(t.move_right, t.move_right, t.yellow("CPEs"), t.cyan(",".join(cpe_list)))
+                    print(t.move_right, t.move_right, t.yellow("CPEs"), t.cyan(",".join(cpe_list)))
                     click.echo("")
             click.echo("")
             exploits = 0
@@ -367,8 +367,8 @@ def cve_search(cve, csv_, output_file, json_, raw):
             click.echo(t.blue("Available exploits"), t.white(str(exploits)))
             for entry in json_data['content']:
                 if entry['type'] == "EXPLOIT":
-                    click.echo(t.move_right, t.move_right, t.yellow("Title"), t.cyan(entry['entity']['title']),t.yellow("Platform"), t.cyan(entry['entity']['platform']),t.yellow("Source"), t.cyan(entry['entity']['source']),t.yellow("Type"), t.cyan(entry['entity']['type']))
-                    click.echo(t.move_right, t.move_right, t.move_right, t.move_right, t.yellow("URL"), t.white(entry['entity']['sourceUri']))
+                    print(t.move_right, t.move_right, t.yellow("Title"), t.cyan(entry['entity']['title']),t.yellow("Platform"), t.cyan(entry['entity']['platform']),t.yellow("Source"), t.cyan(entry['entity']['source']),t.yellow("Type"), t.cyan(entry['entity']['type']))
+                    print(t.move_right, t.move_right, t.move_right, t.move_right, t.yellow("URL"), t.white(entry['entity']['sourceUri']))
     else:
         click.echo(response.status_code)
         click.echo(response.text)
@@ -456,7 +456,6 @@ def incidents(incident_id, iocs, csv_, output_file, json_, raw):
 @click.option('--output_file', '-o', help='Output file of results from indicator lookups', type=str)
 @click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
 @click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
-@click.argument('ipaddr')
 def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
     search_cmd = "search/find"
 
@@ -504,7 +503,7 @@ def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
                         if entry['type'] == 'WEBROOT_IP':
                             click.echo(t.blue("IP address:"), t.white("{}".format(ipaddr)), t.blue("Classified as threat:"), t.white("{}".format(entry['entity']['currentlyClassifiedAsThreat'])), t.blue("Reputation score:"),  t.white("{}".format(entry['entity']['reputationScore'])), t.blue("Timestamp:"), t.white("{}".format(entry['entity']['updatedDateTime'])))
                             for ip_history in entry['entity']['ipThreatHistory']:
-                                click.echo(t.move_right, t.move_right, t.yellow("Historical classification:"), t.cyan("{}".format(ip_history['classifiedAsThreat'])), t.yellow("Historical timestamp"), t.cyan("{}".format(ip_history['timestamp'])))
+                                print(t.move_right, t.move_right, t.yellow("Historical classification:"), t.cyan("{}".format(ip_history['classifiedAsThreat'])), t.yellow("Historical timestamp"), t.cyan("{}".format(ip_history['timestamp'])))
             else:
                 click.echo(response.status_code)
                 click.echo(response.text)
