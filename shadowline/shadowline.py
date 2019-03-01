@@ -123,13 +123,13 @@ def databreach_summary(csv_, output_file, json_, raw):
             if response.status_code == 200:
                 click.echo("{} {}".format(t.blue("Total Breaches:"), t.white("{}".format(json_data['totalBreaches']))))
                 for breach in json_data['breachesPerDomain']:
-                    print(t.move_right, t.move_right, t.yellow("{} breaches for domain {}".format(breach['count'], breach['key'])))
-                print(t.blue("Total Usernames:"), t.white("{}".format(json_data['totalUsernames'])))
+                    click.echo(t.move_right, t.move_right, t.yellow("{} breaches for domain {}".format(breach['count'], breach['key'])))
+                click.echo(t.blue("Total Usernames:"), t.white("{}".format(json_data['totalUsernames'])))
                 for usernames in json_data['usernamesPerDomain']:
-                    print(t.move_right, t.move_right, t.yellow("{} usernames for domain {}".format(usernames['count'], usernames['key'])))
+                    click.echo(t.move_right, t.move_right, t.yellow("{} usernames for domain {}".format(usernames['count'], usernames['key'])))
             else:
-                print(response.status_code)
-                print(response.text)
+                click.echo(response.status_code)
+                click.echo(response.text)
 
 
 @main.command('databreach_list', short_help='Lists the details of a specific breach')
@@ -157,9 +157,9 @@ def databreach_list(breach_id, csv_, output_file, json_, raw):
             sl_helpers.handle_json_output(json_data, raw)
         else:
             if "content" in json_data:
-                print(t.blue("Total Breaches"), t.white("{}".format(len(json_data['content']))))
+                click.echo(t.blue("Total Breaches"), t.white("{}".format(len(json_data['content']))))
                 for breach in json_data['content']:
-                    print(t.blue("Title"), t.white("{}".format(breach['title'])))
+                    click.echo(t.blue("Title"), t.white("{}".format(breach['title'])))
                     print(t.move_right, t.move_right, t.yellow("number of usernames impacted for organization"), t.cyan("{}".format(breach['organisationUsernameCount'])))
                     print(t.move_right, t.move_right, t.yellow("breach published on"), t.cyan("{}".format(breach['published'])))
                     print(t.move_right, t.move_right, t.yellow("severity"), t.cyan("{}".format(breach['incident']['severity'])))
