@@ -114,7 +114,7 @@ def databreach_summary(csv_, output_file, json_, raw):
         if csv_:
             csv_df = pandas.read_json(json.dumps(json_data))
             if output_file:
-                csv_df.to_csv(output_file)
+                csv_df.to_csv(output_file, mode='a+')
             else:
                 print(csv_df.to_csv())
         elif json_:
@@ -150,7 +150,7 @@ def databreach_list(breach_id, csv_, output_file, json_, raw):
         if csv_:
             flattened_json = json_normalize(json_data['content'])
             if output_file:
-                flattened_json.to_csv(output_file)
+                flattened_json.to_csv(output_file, mode='a+')
             else:
                 print(flattened_json.to_csv())
         elif json_:
@@ -191,7 +191,7 @@ def databreach_usernames(breach_id, csv_, output_file, json_, raw):
         if csv_:
             csv_df = pandas.read_json(json.dumps(json_data['content']))
             if output_file:
-                csv_df.to_csv(output_file)
+                csv_df.to_csv(output_file, mode='a+')
             else:
                 print(csv_df.to_csv())
         elif json_:
@@ -216,7 +216,7 @@ def domain_lookup(domain, csv_, output_file, json_, raw):
         if csv_:
             csv_df = pandas.read_json(json.dumps(json_data))
             if output_file:
-                csv_df.to_csv(output_file)
+                csv_df.to_csv(output_file, mode='a+')
             else:
                 print(csv_df.to_csv())
         elif json_:
@@ -245,7 +245,7 @@ def domain_whois(domain, csv_, output_file, json_, raw):
         if csv_:
             flattened_json = json_normalize(json_data)
             if output_file:
-                flattened_json.to_csv(output_file)
+                flattened_json.to_csv(output_file, mode='a+')
             else:
                 print(flattened_json.to_csv())
         elif json_:
@@ -305,7 +305,7 @@ def ipaddr_whois(ip_addr, csv_, output_file, json_, raw):
             if csv_:
                 flattened_json = json_normalize(json_data)
                 if output_file:
-                    flattened_json.to_csv(output_file)
+                    flattened_json.to_csv(output_file, mode='a+')
                 else:
                     print(flattened_json.to_csv())
             elif json_:
@@ -337,7 +337,7 @@ def cve_search(cve, csv_, output_file, json_, raw):
         if csv_:
             flattened_json = json_normalize(json_data['content'])
             if output_file:
-                flattened_json.to_csv(output_file)
+                flattened_json.to_csv(output_file, mode='a+')
             else:
                 print(flattened_json.to_csv())
         elif json_:
@@ -433,7 +433,7 @@ def incidents(incident_id, iocs, csv_, output_file, json_, raw):
         if csv_:
             flattened_json = json_normalize(json_data['content'])
             if output_file:
-                flattened_json.to_csv(output_file)
+                flattened_json.to_csv(output_file, mode='a+')
             else:
                 print(flattened_json.to_csv())
         elif json_:
@@ -470,7 +470,7 @@ def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
                     if csv_:
                         flattened_json = json_normalize(json_data['content'])
                         if output_file:
-                            flattened_json.to_csv(output_file)
+                            flattened_json.to_csv(output_file, mode='a+')
                         else:
                             print(flattened_json.to_csv())
                     elif json_:
@@ -493,7 +493,7 @@ def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
                 if csv_:
                     flattened_json = json_normalize(json_data['content'])
                     if output_file:
-                        flattened_json.to_csv(output_file)
+                        flattened_json.to_csv(output_file, mode='a+')
                     else:
                         print(flattened_json.to_csv())
                 elif json_:
