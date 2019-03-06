@@ -148,7 +148,7 @@ def databreach_list(breach_id, csv_, output_file, json_, raw):
     if response.status_code == 200:
         json_data = response.json()
         if csv_:
-            flattened_json = json_normalize(json_data['content'])
+            flattened_json = json_normalize(json_data)
             if output_file:
                 flattened_json.to_csv(output_file, mode='a+')
             else:
