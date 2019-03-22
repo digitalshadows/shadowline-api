@@ -30,3 +30,6 @@ INTELTHREATS_FIND_CMD = "find"
 # Incidents
 INCIDENTS_CMD = 'incidents/'
 INCIDENTS_FIND_CMD = "find"
+# Intel Incidents
+INTELINCIDENTS_CMD = 'intel-incidents/'
+INTELINCIDENTS_FIND_CMD = "find"

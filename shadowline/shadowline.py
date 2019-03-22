@@ -449,6 +449,23 @@ def incidents(incident_id, iocs, csv_, output_file, json_, raw):
         print(response.status_code)
         print(response.text)
 
+@main.command('intelligence', short_help='search through the Digital Shadows repository')
+@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
+@click.option('--input_file', '-i', help='Input file of IP addresses to look up', type=click.File('r'))
+@click.option('--output_file', '-o', help='Output file of results from indicator lookups', type=str)
+@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
+@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+def intelligence(csv_, input_file, output_file, json_, raw):
+    search_filter = {"filter":{"severities":[],"tags":[],"tagOperator":"AND","dateRange":"ALL","dateRangeField":"published","types":[],"withFeedback":"true","withoutFeedback":"true"},"sort":{"property":"date","direction":"DESCENDING"},"pagination":{"size":50,"offset":0}}
+    
+    response = api_call("{}{}".format(sl_constants.INTELINCIDENTS_CMD, sl_constants.INTELINCIDENTS_FIND_CMD), 'post',  api_filter=search_filter)
+    if response.status_code == 200:
+        json_data = response.json()
+        sl_helpers.handle_json_output(json_data, raw)
+    else:
+        print(response.status_code)
+        print(response.text)
+        
 @main.command('indicator', short_help='search for an IP address as an Indicator Of Compromise')
 @click.option('--ipaddr', help='Provide an IP address to query', type=str)
 @click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
