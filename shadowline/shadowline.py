@@ -485,7 +485,8 @@ def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
         response = api_call("{}{}".format(sl_constants.INTELINCIDENTS_CMD, sl_constants.INTELINCIDENTS_FIND_CMD), 'post',  api_filter=search_filter)
         if response.status_code == 200:
             json_data = response.json()
-            sl_helpers.handle_json_output(json_data, raw)
+            if json_:
+                sl_helpers.handle_json_output(json_data, raw)
         else:
             print(response.status_code)
             print(response.text)
