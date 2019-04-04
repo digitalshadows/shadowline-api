@@ -74,6 +74,14 @@ def api_call(endpoint,cmd, api_filter=None):
 
     return response
 
+def common_options(function):
+    function = click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)(function)
+    function = click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)(function)
+    function = click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)(function)
+    function = click.option('--output_file', '-o', help='Output file of results from indicator lookups', type=str)(function)
+
+    return function
+
 @main.command('setup_profile', short_help='Setup a profile to store API credentials')
 @click.option('--profile', prompt=True)
 @click.option('--username', prompt=True)
@@ -102,10 +110,7 @@ def setup_profile(profile, username, password):
         config.write(f)
 
 @main.command('databreach_summary', short_help='Retrieve a summary of databreaches')
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
-@click.option('--output_file', '-o', help='Filename to write the output to')
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 def databreach_summary(csv_, output_file, json_, raw):
     
     response = api_call("{}".format(sl_constants.DATABREACH_SUMMARY_CMD), 'get')
@@ -134,10 +139,7 @@ def databreach_summary(csv_, output_file, json_, raw):
 
 @main.command('databreach_list', short_help='Lists the details of a specific breach')
 @click.option('--breach_id', help='Provide a breach ID to list the details of a specific breach', type=int)
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
-@click.option('--output_file', '-o', help='Filename to write the output to')
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 def databreach_list(breach_id, csv_, output_file, json_, raw):
     
     if breach_id:
@@ -179,10 +181,7 @@ def databreach_list(breach_id, csv_, output_file, json_, raw):
 
 @main.command('databreach_username', short_help='Lists usernames impacted by a specific breach')
 @click.option('--breach_id', help='Provide a breach ID to list the details of a specific breach', type=int, required=True)
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
-@click.option('--output_file', '-o', help='Filename to write the output to')
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 def databreach_usernames(breach_id, csv_, output_file, json_, raw):
 
     response = api_call("{}".format(sl_constants.DATABREACH_FIND_USERNAMES_CMD), 'post', api_filter=sl_constants.DATABREACH_FILTER)
@@ -203,10 +202,7 @@ def databreach_usernames(breach_id, csv_, output_file, json_, raw):
 
 
 @main.command('domain_lookup', short_help='Perform a DNS lookup for a domain')
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
-@click.option('--output_file', '-o', help='Filename to write the output to')
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 @click.argument('domain')
 def domain_lookup(domain, csv_, output_file, json_, raw):
 
@@ -232,10 +228,7 @@ def domain_lookup(domain, csv_, output_file, json_, raw):
 
 
 @main.command('domain_whois', short_help='Lookup the domain WHOIS information for a domain')
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
-@click.option('--output_file', '-o', help='Filename to write the output to')
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 @click.argument('domain')
 def domain_whois(domain, csv_, output_file, json_, raw):
 
@@ -289,10 +282,7 @@ def ip_whois_search(ip_addr):
 
 
 @main.command('ipaddr_whois', short_help='Lookup the WHOIS information for an IP address')
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
-@click.option('--output_file', '-o', help='Filename to write the output to')
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 @click.argument('ip_addr')
 def ipaddr_whois(ip_addr, csv_, output_file, json_, raw):
 
@@ -321,10 +311,7 @@ def ipaddr_whois(ip_addr, csv_, output_file, json_, raw):
 
 
 @main.command('cve_search', short_help='Lookup a CVE')
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
-@click.option('--output_file', '-o', help='Filename to write the output to')
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 @click.argument('cve')
 def cve_search(cve, csv_, output_file, json_, raw):
 
@@ -373,7 +360,7 @@ def cve_search(cve, csv_, output_file, json_, raw):
         print(response.status_code)
         print(response.text)
 
-
+# TODO add CSV
 @main.command('threats', short_help='Look up a threat record')
 @click.option('--iocs', help='Retrieve the IOCs for a threat record', default=False, is_flag=True)
 @click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
@@ -417,10 +404,7 @@ def threats(incident_id, iocs, json_, raw):
 @main.command('incidents', short_help='Retrieve all incidents or an incident')
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
 @click.option('--iocs', help='Retrieve the IOCs for a threat record', default=False, is_flag=True)
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
-@click.option('--output_file', '-o', help='Filename to write the output to')
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 def incidents(incident_id, iocs, csv_, output_file, json_, raw):
     response = ""
     if incident_id:
@@ -451,11 +435,8 @@ def incidents(incident_id, iocs, csv_, output_file, json_, raw):
 @main.command('intelligence', short_help='search through the Digital Shadows repository')
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
 @click.option('--iocs', help='Retrieve the IOCs for a threat record', default=False, is_flag=True)
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
-@click.option('--input_file', '-i', help='Input file of IP addresses to look up', type=click.File('r'))
 @click.option('--output_file', '-o', help='Output file of results from indicator lookups', type=str)
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
     search_filter = {"filter":{"severities":[],"tags":[],"tagOperator":"AND","dateRange":"ALL","dateRangeField":"published","types":[],"withFeedback":"true","withoutFeedback":"true"},"sort":{"property":"date","direction":"DESCENDING"},"pagination":{"size":50,"offset":0}}
 
@@ -493,11 +474,8 @@ def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
         
 @main.command('indicator', short_help='search for an IP address as an Indicator Of Compromise')
 @click.option('--ipaddr', help='Provide an IP address to query', type=str)
-@click.option('--csv', '-c', 'csv_', help='Print CSV output from the API', default=False, is_flag=True)
 @click.option('--input_file', '-i', help='Input file of IP addresses to look up', type=click.File('r'))
-@click.option('--output_file', '-o', help='Output file of results from indicator lookups', type=str)
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
+@common_options
 def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
     search_cmd = "search/find"
 
@@ -551,6 +529,5 @@ def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
                 print(response.text)
                 sys.exit(1)
         
-
 if __name__ == "__main__":
     main()
