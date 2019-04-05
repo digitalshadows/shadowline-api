@@ -32,3 +32,9 @@ def echo_databreach_usernames(json_data):
     print(blessed_t.blue("Total Usernames"), blessed_t.white("{}".format(len(json_data['content']))))
     for row in json_data['content']:
         print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("username"), blessed_t.cyan("{}".format(row['username'])), blessed_t.yellow("breach count"), blessed_t.cyan("{}".format(row['breachCount'])))
+
+def echo_domain_lookup(json_data):
+    print(blessed_t.blue("Results for domain"), blessed_t.white("{}".format(json_data['dnsZone']['name'])), blessed_t.blue("from DNS server"), blessed_t.white("{}".format(json_data['dnsServerIpAddress'])))
+    for record in json_data['dnsZone']['records']:
+        if 'type' in record:
+            print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("type"), blessed_t.cyan("{}".format(record['type'])), blessed_t.yellow("data"), blessed_t.cyan("{}".format(record['data'])))

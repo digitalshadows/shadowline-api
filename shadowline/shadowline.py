@@ -164,10 +164,7 @@ def domain_lookup(domain, csv_, output_file, json_, raw):
         elif json_:
             sl_helpers.handle_json_output(json_data, raw)
         else:
-            print(blessed_t.blue("Results for domain"), blessed_t.white("{}".format(domain)), blessed_t.blue("from DNS server"), blessed_t.white("{}".format(json_data['dnsServerIpAddress'])))
-            for record in json_data['dnsZone']['records']:
-                if 'type' in record:
-                    print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("type"), blessed_t.cyan("{}".format(record['type'])), blessed_t.yellow("data"), blessed_t.cyan("{}".format(record['data'])))
+            sl_console.echo_domain_lookup(json_data)
     else:
         click.echo("An API call error occurred")        
         sys.exit(1)
