@@ -22,6 +22,8 @@ requests==2.18.4
 retrying==1.3.3
 blessed==1.15.0
 pandas==0.24.1
+dotmap==1.3.4
+validators==0.12.4
 ```
 
 ## Usage
