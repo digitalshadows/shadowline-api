@@ -186,23 +186,7 @@ def domain_whois(domain, csv_, output_file, json_, raw):
         elif json_:
             sl_helpers.handle_json_output(json_data, raw)
         else:
-            if 'registrar' in json_data:
-                print(blessed_t.blue("Results for domain"), blessed_t.green("{}".format(domain)), blessed_t.blue("registered by"), blessed_t.white("{}".format(json_data['registrar'])))
-            else:
-                print(blessed_t.blue("Results for domain"), blessed_t.green("{}".format(domain)))
-
-            if 'created' in json_data and 'expires' in json_data and 'updated' in json_data:
-                print(blessed_t.blue("Created"), blessed_t.white("{}".format(json_data['created'])), blessed_t.blue("expires"), blessed_t.white("{}".format(json_data['expires'])), blessed_t.blue("updated"), blessed_t.white("{}".format(json_data['updated'])))
-            else:
-                print("Registration date information missing, suggest using --json to review the raw output")
-                
-            print(blessed_t.blue("Results for domain"))
-            if 'registrant' in json_data:
-                if 'email' in json_data['registrant'] and 'name' in json_data['registrant'] and 'organization' in json_data['registrant'] and 'telephone' in json_data['registrant']:
-                    print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("email"), blessed_t.cyan("{}".format(json_data['registrant']['email'])), blessed_t.yellow("name"), blessed_t.cyan("{}".format(json_data['registrant']['name'])), blessed_t.yellow("organization"), blessed_t.cyan("{}".format(json_data['registrant']['organization'])), blessed_t.yellow("telephone"), blessed_t.cyan("{}".format(json_data['registrant']['telephone'])))
-                    print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("street"), blessed_t.cyan("{}".format(json_data['registrant']['address']['street1'])), blessed_t.yellow("city"), blessed_t.cyan("{}".format(json_data['registrant']['address']['city'])), blessed_t.yellow("state"), blessed_t.cyan("{}".format(json_data['registrant']['address']['state'])), blessed_t.yellow("country"), blessed_t.cyan("{}".format(json_data['registrant']['address']['country'])))
-                else:
-                    print("Registrant data missing, suggest using --json to review the raw output")
+            sl_console.echo_domain_whois(json_data)
     else:
         click.echo("An API call error occurred")                
         sys.exit(1)
