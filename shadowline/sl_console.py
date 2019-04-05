@@ -60,3 +60,36 @@ def echo_domain_whois(json_data):
     else:
         print("Registrant data missing, suggest using --json to review the raw output")
 
+def echo_ipaddr_whois(json_data, ip_addr):
+    print(blessed_t.blue("IP address"), blessed_t.green("{}".format(ip_addr)))
+    print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("NetName"), blessed_t.cyan(json_data['netName']), blessed_t.yellow("Country"), blessed_t.cyan(json_data['countryName']), blessed_t.yellow("IP range start"), blessed_t.cyan(json_data['ipRangeStart']), blessed_t.yellow("IP range end"), blessed_t.cyan(json_data['ipRangeEnd']))
+
+def echo_cve_search(json_data, cve):
+    print(blessed_t.blue("Results"), blessed_t.green("{}".format(cve)))
+    for cve_entry in json_data['content']:
+        if cve_entry['type'] == "VULNERABILITY":
+            print(blessed_t.blue("Description"), blessed_t.white(cve_entry['entity']['description']))
+            if len(cve_entry['entity']['cvss2Score'])>1:
+                print(blessed_t.blue("CVSS2 score"))
+                print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("Access Complexity"), blessed_t.cyan("{}".format(cve_entry['entity']['cvss2Score']['accessComplexity'])), blessed_t.yellow("Authentication"), blessed_t.cyan("{}".format(cve_entry['entity']['cvss2Score']['authentication'])), blessed_t.yellow("Availability Impact"), blessed_t.cyan("{}".format(cve_entry['entity']['cvss2Score']['availabilityImpact'])), blessed_t.yellow("Base Score"), blessed_t.cyan("{}".format(cve_entry['entity']['cvss2Score']['baseScore'])), blessed_t.yellow("Confidentiality Impact"), blessed_t.cyan("{}".format(cve_entry['entity']['cvss2Score']['confidentialityImpact'])), blessed_t.yellow("Integrity Impact"), blessed_t.cyan("{}".format(cve_entry['entity']['cvss2Score']['integrityImpact'])))
+                print(blessed_t.blue("Affected CPE summary"))
+                cpe_list = []
+                for entry in cve_entry['entity']['relatedCPEs']:
+                    cpe = "{}:{}".format(entry.split(":")[2], entry.split(":")[3])
+                    if cpe not in cpe_list:
+                        cpe_list.append(cpe)
+                
+                print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("CPEs"), blessed_t.cyan(",".join(cpe_list)))
+                print("")
+    print("")
+    exploits = 0
+    for entry in json_data['facets']['typeCounts']:
+        if entry['key'] == 'EXPLOIT':
+            exploits = entry['count']
+                
+    print(blessed_t.blue("Available exploits"), blessed_t.white(str(exploits)))
+        
+    for entry in json_data['content']:
+        if entry['type'] == "EXPLOIT":
+            print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("Title"), blessed_t.cyan(entry['entity']['title']),blessed_t.yellow("Platform"), blessed_t.cyan(entry['entity']['platform']),blessed_t.yellow("Source"), blessed_t.cyan(entry['entity']['source']),blessed_t.yellow("Type"), blessed_t.cyan(entry['entity']['type']))
+            print(blessed_t.move_right, blessed_t.move_right, blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("URL"), blessed_t.white(entry['entity']['sourceUri']))
