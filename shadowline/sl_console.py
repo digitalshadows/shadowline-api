@@ -93,3 +93,17 @@ def echo_cve_search(json_data, cve):
         if entry['type'] == "EXPLOIT":
             print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("Title"), blessed_t.cyan(entry['entity']['title']),blessed_t.yellow("Platform"), blessed_t.cyan(entry['entity']['platform']),blessed_t.yellow("Source"), blessed_t.cyan(entry['entity']['source']),blessed_t.yellow("Type"), blessed_t.cyan(entry['entity']['type']))
             print(blessed_t.move_right, blessed_t.move_right, blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("URL"), blessed_t.white(entry['entity']['sourceUri']))
+
+def echo_threats_iocs(json_data):
+    for ioc in json_data['content']:
+        print("type {} value {}".format(ioc['type'], ioc['value']))
+
+def echo_threats_summary(json_data):
+    print(blessed_t.blue("Threat summary"))
+    print("Name: {}, Type: {}, IOCs: {}".format(json_data['primaryTag']['name'],json_data['primaryTag']['type'], json_data['indicatorOfCompromiseCount']))
+    print("Summary: {}".format(json_data['summary']))
+
+def echo_threats(json_data):
+    print(blessed_t.blue("Incident summary"))
+    for entry in json_data['content']:
+        print('id: {}'.format(entry['id']))

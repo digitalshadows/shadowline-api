@@ -276,8 +276,7 @@ def threats(incident_id, iocs, json_, raw, csv_, output_file):
                 elif json_:
                     sl_helpers.handle_json_output(json_data, raw)
                 else:
-                    for ioc in json_data['content']:
-                        print("type {} value {}".format(ioc['type'], ioc['value']))
+                    echo_threats_iocs(json_data)
             else:
                 click.echo("An API call error occurred")
                 sys.exit(1)
@@ -294,9 +293,7 @@ def threats(incident_id, iocs, json_, raw, csv_, output_file):
                 elif json_:
                     sl_helpers.handle_json_output(json_data, raw)
                 else:
-                    print(blessed_t.blue("Threat summary"))
-                    print("Name: {}, Type: {}, IOCs: {}".format(json_data['primaryTag']['name'],json_data['primaryTag']['type'], json_data['indicatorOfCompromiseCount']))
-                    print("Summary: {}".format(json_data['summary']))
+                    sl_console.echo_threats_summary(json_data)
             else:
                 click.echo("An API call error occurred")
                 sys.exit(1)
@@ -312,9 +309,7 @@ def threats(incident_id, iocs, json_, raw, csv_, output_file):
             elif json_:
                 sl_helpers.handle_json_output(json_data, raw)
             else:
-                print(blessed_t.blue("Incident summary"))
-                for entry in json_data['content']:
-                    print('id: {}'.format(entry['id']))
+                sl_console.echo_threats(json_data)
         else:
             click.echo("An API call error occurred")
             sys.exit(1)
