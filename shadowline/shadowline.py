@@ -138,7 +138,8 @@ def databreach_summary(csv_, output_file, json_, raw):
                 print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("{} usernames for domain {}".format(usernames['count'], usernames['key'])))
     else:
         click.echo("An API call error occurred")
-
+        sys.exit(1)
+        
 @main.command('databreach_list', short_help='Lists the details of a specific breach')
 @click.option('--breach_id', help='Provide a breach ID to list the details of a specific breach', type=int)
 @common_options
@@ -177,6 +178,7 @@ def databreach_list(breach_id, csv_, output_file, json_, raw):
                     print(blessed_t.move_right, blessed_t.move_right, blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("data classes in breach"), blessed_t.cyan("{}".format(data_class)))
     else:
         click.echo("An API call error occurred")
+        sys.exit(1)
         
 @main.command('databreach_username', short_help='Lists usernames impacted by a specific breach')
 @click.option('--breach_id', help='Provide a breach ID to list the details of a specific breach', type=int, required=True)
@@ -200,6 +202,7 @@ def databreach_usernames(breach_id, csv_, output_file, json_, raw):
                 print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("username"), blessed_t.cyan("{}".format(row['username'])), blessed_t.yellow("breach count"), blessed_t.cyan("{}".format(row['breachCount'])))
     else:
         click.echo("An API call error occurred")
+        sys.exit(1)
         
 @main.command('domain_lookup', short_help='Perform a DNS lookup for a domain')
 @common_options
@@ -224,7 +227,8 @@ def domain_lookup(domain, csv_, output_file, json_, raw):
                     print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("type"), blessed_t.cyan("{}".format(record['type'])), blessed_t.yellow("data"), blessed_t.cyan("{}".format(record['data'])))
     else:
         click.echo("An API call error occurred")        
-
+        sys.exit(1)
+        
 @main.command('domain_whois', short_help='Lookup the domain WHOIS information for a domain')
 @common_options
 @click.argument('domain')
@@ -261,6 +265,7 @@ def domain_whois(domain, csv_, output_file, json_, raw):
                     print("Registrant data missing, suggest using --json to review the raw output")
     else:
         click.echo("An API call error occurred")                
+        sys.exit(1)
         
 def ip_whois_search(ip_addr):
     ip_whois_filter = sl_constants.IP_WHOIS_FILTER
@@ -273,7 +278,7 @@ def ip_whois_search(ip_addr):
         return ip_uuid
     else:
         click.echo("An API call error occurred")        
-
+        sys.exit(1)
     return False
 
 @main.command('ipaddr_whois', short_help='Lookup the WHOIS information for an IP address')
@@ -299,7 +304,8 @@ def ipaddr_whois(ip_addr, csv_, output_file, json_, raw):
                 print(blessed_t.blue("IP address"), blessed_t.green("{}".format(ip_addr)))
                 print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("NetName"), blessed_t.cyan(json_data['netName']), blessed_t.yellow("Country"), blessed_t.cyan(json_data['countryName']), blessed_t.yellow("IP range start"), blessed_t.cyan(json_data['ipRangeStart']), blessed_t.yellow("IP range end"), blessed_t.cyan(json_data['ipRangeEnd']))
         else:
-            click.echo("An API call error occurred")                
+            click.echo("An API call error occurred")
+            sys.exit(1)
     else:
         print("Invalid IP address provided: {}".format(ip_addr))
 
@@ -351,38 +357,61 @@ def cve_search(cve, csv_, output_file, json_, raw):
                     print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("Title"), blessed_t.cyan(entry['entity']['title']),blessed_t.yellow("Platform"), blessed_t.cyan(entry['entity']['platform']),blessed_t.yellow("Source"), blessed_t.cyan(entry['entity']['source']),blessed_t.yellow("Type"), blessed_t.cyan(entry['entity']['type']))
                     print(blessed_t.move_right, blessed_t.move_right, blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("URL"), blessed_t.white(entry['entity']['sourceUri']))
     else:
-        click.echo("An API call error occurred")                
+        click.echo("An API call error occurred")
+        sys.exit(1)
 
-# TODO add CSV
 @main.command('threats', short_help='Look up a threat record')
 @click.option('--iocs', help='Retrieve the IOCs for a threat record', default=False, is_flag=True)
-@click.option('--json', '-j', 'json_', help='Print colorized JSON output from the API', default=False, is_flag=True)
-@click.option('--raw', '-r', help='Print the raw JSON output', default=False, is_flag=True)
-@click.argument('incident_id')
-def threats(incident_id, iocs, json_, raw):    
+@click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
+@common_options
+def threats(incident_id, iocs, json_, raw, csv_, output_file):    
     if incident_id:
         if iocs:
             json_data = api_call("{}{}/iocs".format(sl_constants.INTELTHREATS_CMD, incident_id), 'post', api_filter=sl_constants.IOCS_FILTER)
             if json_data:
-                if json_:
+                if csv_:
+                    flattened_json = json_normalize(json_data['content'])
+                    if output_file:
+                        flattened_json.to_csv(output_file, mode='a+')
+                    else:
+                        print(flattened_json.to_csv())
+                elif json_:
                     sl_helpers.handle_json_output(json_data, raw)
                 else:
                     for ioc in json_data['content']:
                         print("type {} value {}".format(ioc['type'], ioc['value']))
             else:
-                click.echo("An API call error occurred")                
+                click.echo("An API call error occurred")
+                sys.exit(1)
         else:
             json_data = api_call("{}{}".format(sl_constants.INTELTHREATS_CMD, incident_id), 'get', api_filter=sl_constants.THREAT_FILTER)
             
             if json_data:
-                if json_:
+                if csv_:
+                    flattened_json = json_normalize(json_data['content'])
+                    if output_file:
+                        flattened_json.to_csv(output_file, mode='a+')
+                    else:
+                        print(flattened_json.to_csv())
+                elif json_:
                     sl_helpers.handle_json_output(json_data, raw)
+                else:
+                    print(blessed_t.blue("Threat summary"))
+                    print("Name: {}, Type: {}, IOCs: {}".format(json_data['primaryTag']['name'],json_data['primaryTag']['type'], json_data['indicatorOfCompromiseCount']))
+                    print("Summary: {}".format(json_data['summary']))
             else:
-                click.echo("An API call error occurred")                
+                click.echo("An API call error occurred")
+                sys.exit(1)
     else:
         json_data = api_call("{}{}".format(sl_constants.INTELTHREATS_CMD, sl_constants.INTELTHREATS_FIND_CMD), 'post', api_filter=sl_constants.THREAT_FILTER)
         if json_data:
-            if json_:
+            if csv_:
+                flattened_json = json_normalize(json_data['content'])
+                if output_file:
+                    flattened_json.to_csv(output_file, mode='a+')
+                else:
+                    print(flattened_json.to_csv())
+            elif json_:
                 sl_helpers.handle_json_output(json_data, raw)
             else:
                 print(blessed_t.blue("Incident summary"))
@@ -390,6 +419,7 @@ def threats(incident_id, iocs, json_, raw):
                     print('id: {}'.format(entry['id']))
         else:
             click.echo("An API call error occurred")
+            sys.exit(1)
             
 @main.command('incidents', short_help='Retrieve all incidents or an incident')
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
@@ -420,6 +450,7 @@ def incidents(incident_id, iocs, csv_, output_file, json_, raw):
                     print('id: {}'.format(entry['id']))
     else:
         click.echo("An API call error occurred")
+        sys.exit(1)
 
 @main.command('intelligence', short_help='search through the Digital Shadows repository')
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
@@ -441,6 +472,7 @@ def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
                         print("type {} value {}".format(ioc['type'], ioc['value']))
             else:
                 click.echo("An API call error occurred")
+                sys.exit(1)
         else:
             json_data = api_call("{}{}".format(sl_constants.INTELINCIDENTS_CMD, incident_id), 'get', api_filter=sl_constants.THREAT_FILTER)
             
@@ -449,6 +481,7 @@ def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
                     sl_helpers.handle_json_output(json_data, raw)
             else:
                 click.echo("An API call error occurred")
+                sys.exit(1)
     else:
         json_data = api_call("{}{}".format(sl_constants.INTELINCIDENTS_CMD, sl_constants.INTELINCIDENTS_FIND_CMD), 'post',  api_filter=search_filter)
         if json_data:
@@ -456,6 +489,7 @@ def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
                 sl_helpers.handle_json_output(json_data, raw)
         else:
             click.echo("An API call error occurred")
+            sys.exit(1)
         
 @main.command('indicator', short_help='search for an IP address as an Indicator Of Compromise')
 @click.option('--ipaddr', help='Provide an IP address to query', type=str)
