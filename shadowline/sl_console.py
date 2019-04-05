@@ -107,3 +107,11 @@ def echo_threats(json_data):
     print(blessed_t.blue("Incident summary"))
     for entry in json_data['content']:
         print('id: {}'.format(entry['id']))
+        
+def echo_incidents(json_data, incident_id):
+    print(blessed_t.blue("Incident summary"))
+    if incident_id:
+        print('Scope: {} Type: {} Sub-type: {} Severity: {} Title: {}'.format(json_data['scope'], json_data['type'], json_data['subType'], json_data['severity'], json_data['title']))
+    else:
+        for entry in json_data['content']:
+            print('id: {}'.format(entry['id']))
