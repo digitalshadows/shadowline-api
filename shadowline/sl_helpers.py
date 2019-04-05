@@ -2,6 +2,7 @@ import pandas
 import json
 import requests
 import sys
+import validators
 
 from pandas.io.json import json_normalize
 from . import sl_constants
@@ -47,20 +48,27 @@ def api_call(endpoint,cmd, settings, api_filter=None):
     s.auth = (settings.USERNAME, settings.PASSWORD)
     
     response = ""
-    
-    try:
-        if cmd == 'get':
-            if api_filter:
-                response = s.get("{}{}".format(sl_constants.API_URL, endpoint), headers=sl_constants.HEADERS, json=api_filter)
-            else:
-                response = s.get("{}{}".format(sl_constants.API_URL, endpoint), headers=sl_constants.HEADERS)
-        elif cmd == 'post':
-            if api_filter:
-                response = s.post("{}{}".format(sl_constants.API_URL, endpoint), headers=sl_constants.HEADERS, json=api_filter)                
-    except (requests.exceptions.RequestException, requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
-        print("Error connecting to DS Portal API: {}".format(e))
-        sys.exit(1)
 
+
+    api_url = "{}{}".format(sl_constants.API_URL, endpoint)
+
+    if validators.url(api_url):
+        try:
+            if cmd == 'get':
+                if api_filter:
+                    response = s.get(api_url, headers=sl_constants.HEADERS, json=api_filter)
+                else:
+                    response = s.get(api_url, headers=sl_constants.HEADERS)
+            elif cmd == 'post':
+                if api_filter:
+                    response = s.post(api_url, headers=sl_constants.HEADERS, json=api_filter)                
+        except (requests.exceptions.RequestException, requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
+            print("Error connecting to DS Portal API: {}".format(e))
+            sys.exit(1)
+    else:
+        print("invalid URL {}".format(api_url))
+        return None
+    
     if response.status_code == 200:
         return response.json()
     else:
@@ -70,7 +78,6 @@ def api_call(endpoint,cmd, settings, api_filter=None):
 
 def handle_json_csv_output(json_data, json_, csv_, output_file, raw):
     if csv_:
-#        csv_df = pandas.read_json(json.dumps(json_data))
         flattened_json = json_normalize(json_data)
         if output_file:
             flattened_json.to_csv(output_file, mode='a+')

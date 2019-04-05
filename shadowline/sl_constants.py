@@ -1,6 +1,5 @@
 ### URL for the DS Portal
 API_URL = "https://portal-digitalshadows.com/api/"
-
 ### Standard headers for all API requests
 HEADERS = {"Content-Type":"application/vnd.polaris-v38+json", "Accept":"application/vnd.polaris-v38+json"}
 
