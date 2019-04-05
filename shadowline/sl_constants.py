@@ -10,6 +10,7 @@ IP_WHOIS_FILTER = {"filter":{"dateRange":"ALL","tags":[],"types":["IP_WHOIS"]},"
 CVE_FILTER = {"filter":{"dateRange":"ALL","tags":[],"types":["VULNERABILITY_EXPLOIT"]},"pagination":{"offset":0,"size":25},"sort":{"property":"relevance","direction":"DESCENDING"},"query":"","facets":["RESULTS_TYPE"]}
 THREAT_FILTER = {"filter":{"dateRange":"P6M","dateRangeField":"lastActive","tags":[],"tagOperator":"AND","threatLevels":[],"relevantToClientOnly":"false"},"sort":{"property":"lastActive","direction":"DESCENDING"},"pagination":{"size":12,"offset":0}}
 IOCS_FILTER = {"filter":{},"sort":{"property":"value","direction":"ASCENDING"}}
+INTEL_FILTER = {"filter":{"severities":[],"tags":[],"tagOperator":"AND","dateRange":"ALL","dateRangeField":"published","types":[],"withFeedback":"true","withoutFeedback":"true"},"sort":{"property":"date","direction":"DESCENDING"},"pagination":{"size":50,"offset":0}}
 
 ### Portal API endpoints
 # Databreaches

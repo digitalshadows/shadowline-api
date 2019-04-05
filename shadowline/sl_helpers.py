@@ -1,8 +1,13 @@
+import pandas
 import json
+import requests
+import sys
 
+from pandas.io.json import json_normalize
+from . import sl_constants
 from netaddr import IPAddress, IPNetwork
 from pygments import highlight, lexers, formatters
-
+from retrying import retry
 
 def handle_json_output(json_input, raw):
     if raw:
@@ -33,3 +38,43 @@ def is_netrange(cidr):
         print("{} is not a valid IP Network range: {}".format(cidr, e))
         return False
 
+def retry_if_requests_error(exception):
+    return isinstance(exception, requests.exceptions.ConnectionError)
+
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=100000, retry_on_exception=retry_if_requests_error)    
+def api_call(endpoint,cmd, settings, api_filter=None):
+    s = requests.Session()
+    s.auth = (settings.USERNAME, settings.PASSWORD)
+    
+    response = ""
+    
+    try:
+        if cmd == 'get':
+            if api_filter:
+                response = s.get("{}{}".format(sl_constants.API_URL, endpoint), headers=sl_constants.HEADERS, json=api_filter)
+            else:
+                response = s.get("{}{}".format(sl_constants.API_URL, endpoint), headers=sl_constants.HEADERS)
+        elif cmd == 'post':
+            if api_filter:
+                response = s.post("{}{}".format(sl_constants.API_URL, endpoint), headers=sl_constants.HEADERS, json=api_filter)                
+    except (requests.exceptions.RequestException, requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
+        print("Error connecting to DS Portal API: {}".format(e))
+        sys.exit(1)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(response.status_code)
+        print(response.text)
+        return None
+
+def handle_json_csv_output(json_data, json_, csv_, output_file, raw):
+    if csv_:
+#        csv_df = pandas.read_json(json.dumps(json_data))
+        flattened_json = json_normalize(json_data)
+        if output_file:
+            flattened_json.to_csv(output_file, mode='a+')
+        else:
+            print(flattened_json.to_csv())
+    elif json_:
+        handle_json_output(json_data, raw)
