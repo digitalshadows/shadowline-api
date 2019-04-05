@@ -191,9 +191,9 @@ def domain_whois(domain, csv_, output_file, json_, raw):
         click.echo("An API call error occurred")                
         sys.exit(1)
         
-def ip_whois_search(ip_addr):
+def ip_whois_search(ipaddr):
     ip_whois_filter = sl_constants.IP_WHOIS_FILTER
-    ip_whois_filter['query'] = ip_addr
+    ip_whois_filter['query'] = ipaddr
     
     json_data = sl_helpers.api_call(sl_constants.SEARCH_CMD, 'post', settings, api_filter=ip_whois_filter)
     
@@ -207,11 +207,11 @@ def ip_whois_search(ip_addr):
 
 @main.command('ipaddr_whois', short_help='Lookup the WHOIS information for an IP address')
 @common_options
-@click.argument('ip_addr')
-def ipaddr_whois(ip_addr, csv_, output_file, json_, raw):
+@click.argument('ipaddr')
+def ipaddr_whois(ipaddr, csv_, output_file, json_, raw):
 
-    if sl_helpers.is_ipaddr(ip_addr):
-        ip_uuid = ip_whois_search(ip_addr)
+    if sl_helpers.is_ipaddr(ipaddr):
+        ip_uuid = ip_whois_search(ipaddr)
 
         json_data = sl_helpers.api_call("{}{}".format(sl_constants.IPADDR_WHOIS_CMD, ip_uuid), 'get', settings)
         
@@ -225,12 +225,12 @@ def ipaddr_whois(ip_addr, csv_, output_file, json_, raw):
             elif json_:
                 sl_helpers.handle_json_output(json_data, raw)
             else:
-                sl_console.echo_ipaddr_whois(json_data, ip_addr)
+                sl_console.echo_ipaddr_whois(json_data, ipaddr)
         else:
             click.echo("An API call error occurred")
             sys.exit(1)
     else:
-        print("Invalid IP address provided: {}".format(ip_addr))
+        print("Invalid IP address provided: {}".format(ipaddr))
 
 
 @main.command('cve_search', short_help='Lookup a CVE')
@@ -342,6 +342,7 @@ def incidents(incident_id, iocs, csv_, output_file, json_, raw):
 
 @main.command('intelligence', short_help='search through the Digital Shadows repository')
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
+@click.option('--input_file', '-i', help='Input file of IP addresses to look up', type=click.File('r'))
 @click.option('--iocs', help='Retrieve the IOCs for a threat record', default=False, is_flag=True)
 @common_options
 def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
@@ -353,8 +354,7 @@ def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
                 if json_:
                     sl_helpers.handle_json_output(json_data, raw)
                 else:
-                    for ioc in json_data['content']:
-                        print("type {} value {}".format(ioc['type'], ioc['value']))
+                    sl_console.echo_intelligence_iocs(json_data)
             else:
                 click.echo("An API call error occurred")
                 sys.exit(1)
@@ -369,6 +369,8 @@ def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
                         print(flattened_json.to_csv())
                 elif json_:
                     sl_helpers.handle_json_output(json_data, raw)
+                else:
+                    sl_console.echo_intelligence(json_data)
             else:
                 click.echo("An API call error occurred")
                 sys.exit(1)
@@ -383,6 +385,8 @@ def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
                     print(flattened_json.to_csv())
             elif json_:
                 sl_helpers.handle_json_output(json_data, raw)
+            else:
+                sl_console.echo_intelligence_summary(json_data)
         else:
             click.echo("An API call error occurred")
             sys.exit(1)
@@ -410,9 +414,7 @@ def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
                     elif json_:
                         sl_helpers.handle_json_output(json_data, raw)
                     else:
-                        for entry in json_data['content']:
-                            if entry['type'] == 'WEBROOT_IP':
-                                print("{},{}".format(ipaddr, entry['entity']['currentlyClassifiedAsThreat']))
+                        sl_console.echo_indicator(json_data)
                 else:
                     click.echo("An API call error occurred")
                     sys.exit(1)
@@ -431,11 +433,7 @@ def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
                 elif json_:
                     sl_helpers.handle_json_output(json_data, raw)
                 else:
-                    for entry in json_data['content']:
-                        if entry['type'] == 'WEBROOT_IP':
-                            print(blessed_t.blue("IP address:"), blessed_t.white("{}".format(ipaddr)), blessed_t.blue("Classified as threat:"), blessed_t.white("{}".format(entry['entity']['currentlyClassifiedAsThreat'])), blessed_t.blue("Reputation score:"),  blessed_t.white("{}".format(entry['entity']['reputationScore'])), blessed_t.blue("Timestamp:"), blessed_t.white("{}".format(entry['entity']['updatedDateTime'])))
-                            for ip_history in entry['entity']['ipThreatHistory']:
-                                print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("Historical classification:"), blessed_t.cyan("{}".format(ip_history['classifiedAsThreat'])), blessed_t.yellow("Historical timestamp"), blessed_t.cyan("{}".format(ip_history['timestamp'])))
+                    sl_console.echo_indicator_ipaddr(json_data, ipaddr)
             else:
                 click.echo("An API call error occurred")
                 sys.exit(1)

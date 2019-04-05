@@ -60,8 +60,8 @@ def echo_domain_whois(json_data):
     else:
         print("Registrant data missing, suggest using --json to review the raw output")
 
-def echo_ipaddr_whois(json_data, ip_addr):
-    print(blessed_t.blue("IP address"), blessed_t.green("{}".format(ip_addr)))
+def echo_ipaddr_whois(json_data, ipaddr):
+    print(blessed_t.blue("IP address"), blessed_t.green("{}".format(ipaddr)))
     print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("NetName"), blessed_t.cyan(json_data['netName']), blessed_t.yellow("Country"), blessed_t.cyan(json_data['countryName']), blessed_t.yellow("IP range start"), blessed_t.cyan(json_data['ipRangeStart']), blessed_t.yellow("IP range end"), blessed_t.cyan(json_data['ipRangeEnd']))
 
 def echo_cve_search(json_data, cve):
@@ -115,3 +115,31 @@ def echo_incidents(json_data, incident_id):
     else:
         for entry in json_data['content']:
             print('id: {}'.format(entry['id']))
+
+def echo_intelligence_iocs(json_data):
+    for ioc in json_data['content']:
+        print("type {} value {}".format(ioc['type'], ioc['value']))
+
+def echo_intelligence(json_data):
+    print(blessed_t.blue("Intelligence"))
+    print("Title: {}, Severity: {}, IOCs: {}".format(json_data['title'], json_data['severity'], json_data['indicatorOfCompromiseCount']))
+    print("Summary: {}".format(json_data['summary']))
+
+def echo_intelligence_summary(json_data):
+    for results in json_data['content']:
+        print("ID: {}, Title: {}, Severity: {}, IOCs: {}".format(results['id'], results['title'], results['severity'], results['indicatorOfCompromiseCount']))
+        print("Summary: {}".format(results['summary']))
+        print("")
+
+def echo_indicator(json_data):
+    for entry in json_data['content']:
+        if entry['type'] == 'WEBROOT_IP':
+            print("{},{}".format(ipaddr, entry['entity']['currentlyClassifiedAsThreat']))
+
+def echo_indicator_ipaddr(json_data, ipaddr):
+    for entry in json_data['content']:
+        if entry['type'] == 'WEBROOT_IP':
+            print(blessed_t.blue("IP address:"), blessed_t.white("{}".format(ipaddr)), blessed_t.blue("Classified as threat:"), blessed_t.white("{}".format(entry['entity']['currentlyClassifiedAsThreat'])), blessed_t.blue("Reputation score:"),  blessed_t.white("{}".format(entry['entity']['reputationScore'])), blessed_t.blue("Timestamp:"), blessed_t.white("{}".format(entry['entity']['updatedDateTime'])))
+            for ip_history in entry['entity']['ipThreatHistory']:
+                print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("Historical classification:"), blessed_t.cyan("{}".format(ip_history['classifiedAsThreat'])), blessed_t.yellow("Historical timestamp"), blessed_t.cyan("{}".format(ip_history['timestamp'])))
+
