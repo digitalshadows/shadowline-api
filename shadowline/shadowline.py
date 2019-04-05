@@ -276,7 +276,7 @@ def threats(incident_id, iocs, json_, raw, csv_, output_file):
                 elif json_:
                     sl_helpers.handle_json_output(json_data, raw)
                 else:
-                    echo_threats_iocs(json_data)
+                    sl_console.echo_threats_iocs(json_data)
             else:
                 click.echo("An API call error occurred")
                 sys.exit(1)
