@@ -1,9 +1,9 @@
-import pandas
 import json
 import requests
 import sys
 import validators
 
+from pprint import pprint
 from pandas.io.json import json_normalize
 from . import sl_constants
 from netaddr import IPAddress, IPNetwork
@@ -45,10 +45,10 @@ def retry_if_requests_error(exception):
 @retry(wait_exponential_multiplier=1000, wait_exponential_max=100000, retry_on_exception=retry_if_requests_error)    
 def api_call(endpoint,cmd, settings, api_filter=None):
     s = requests.Session()
+
     s.auth = (settings.USERNAME, settings.PASSWORD)
     
     response = ""
-
 
     api_url = "{}{}".format(sl_constants.API_URL, endpoint)
 
@@ -72,8 +72,8 @@ def api_call(endpoint,cmd, settings, api_filter=None):
     if response.status_code == 200:
         return response.json()
     else:
-        print(response.status_code)
-        print(response.text)
+        print("HTTP response code: {}".format(response.status_code))
+        pprint(response.json())
         return None
 
 def handle_json_csv_output(json_data, json_, csv_, output_file, raw):
@@ -85,3 +85,4 @@ def handle_json_csv_output(json_data, json_, csv_, output_file, raw):
             print(flattened_json.to_csv())
     elif json_:
         handle_json_output(json_data, raw)
+

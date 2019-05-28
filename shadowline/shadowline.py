@@ -6,9 +6,10 @@ import click
 import time
 import os
 
-from . import sl_constants
+from . import searchlight
 from . import sl_helpers
 from . import sl_console
+
 from pathlib import Path
 from dotmap import DotMap
 from netaddr import IPAddress
@@ -83,262 +84,234 @@ def setup_profile(profile, username, password):
 @main.command('databreach_summary', short_help='Retrieve a summary of databreaches')
 @common_options
 def databreach_summary(csv_, output_file, json_, raw):
+    api = searchlight.searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
     
-    json_data = sl_helpers.api_call("{}".format(sl_constants.DATABREACH_SUMMARY_CMD), 'get', settings)
-    
-    if json_data:
+    response = api.get_databreach_summary()
+
+    if response:
         if csv_:
-            csv_df = pandas.read_json(json.dumps(json_data))
+            csv_df = pandas.read_json(json.dumps(response))
             if output_file:
                 csv_df.to_csv(output_file)
             else:
                 print(csv_df.to_csv())
         elif json_:
-            sl_helpers.handle_json_output(json_data, raw)
+            sl_helpers.handle_json_output(response, raw)
         else:
-            sl_console.echo_databreach_summary(json_data)
+            sl_console.echo_databreach_summary(response)
     else:
         click.echo("An API call error occurred")
         sys.exit(1)
-        
+
+
 @main.command('databreach_list', short_help='Lists the details of a specific breach')
 @click.option('--breach_id', help='Provide a breach ID to list the details of a specific breach', type=int)
 @common_options
 def databreach_list(breach_id, csv_, output_file, json_, raw):
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
+    response = ""
     
     if breach_id:
-        json_data = sl_helpers.api_call("{}{}".format(sl_constants.DATABREACH_FIND_ID_CMD, breach_id), 'get', settings, api_filter=sl_constants.DATABREACH_FILTER)
+        response = api.get_databreach_list(breach_id)
     else:
-        json_data = sl_helpers.api_call("{}".format(sl_constants.DATABREACH_FIND_CMD), 'post', settings, api_filter=sl_constants.DATABREACH_FILTER)
+        response = api.get_databreach_list(None)
         
-    if json_data:       
+    if response:       
         if csv_:
-            flattened_json = json_normalize(json_data)
+            flattened_json = json_normalize(response)
             if output_file:
                 flattened_json.to_csv(output_file, mode='a+')
             else:
                 print(flattened_json.to_csv())
         elif json_:
-            sl_helpers.handle_json_output(json_data, raw)
+            sl_helpers.handle_json_output(response, raw)
         else:
-            sl_console.echo_databreach_list(json_data)
+            sl_console.echo_databreach_list(response)
     else:
         click.echo("An API call error occurred")
         sys.exit(1)
-        
+
 @main.command('databreach_usernames', short_help='Lists usernames impacted by a specific breach')
 @common_options
 def databreach_usernames(csv_, output_file, json_, raw):
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
 
-    json_data = sl_helpers.api_call("{}".format(sl_constants.DATABREACH_FIND_USERNAMES_CMD), 'post', settings, api_filter=sl_constants.DATABREACH_FILTER)
+    response = api.get_databreach_usernames()
     
-    if json_data:
+    if response:
         if csv_:
-            csv_df = pandas.read_json(json.dumps(json_data['content']))
+            csv_df = pandas.read_json(json.dumps(response['content']))
             if output_file:
                 csv_df.to_csv(output_file, mode='a+')
             else:
                 print(csv_df.to_csv())
         elif json_:
-            sl_helpers.handle_json_output(json_data, raw)
+            sl_helpers.handle_json_output(response, raw)
         else:
-            sl_console.echo_databreach_usernames(json_data)
+            sl_console.echo_databreach_usernames(response)
     else:
         click.echo("An API call error occurred")
         sys.exit(1)
-        
+
 @main.command('domain_lookup', short_help='Perform a DNS lookup for a domain')
 @common_options
 @click.argument('domain')
 def domain_lookup(domain, csv_, output_file, json_, raw):
-
-    json_data = sl_helpers.api_call("{}{}".format(sl_constants.DOMAIN_LOOKUP_CMD, domain), 'get', settings)
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
     
-    if json_data:
+    response = api.get_domain(domain)
+    
+    if response:
         if csv_:
-            csv_df = pandas.read_json(json.dumps(json_data))
+            csv_df = pandas.read_json(json.dumps(response))
             if output_file:
                 csv_df.to_csv(output_file, mode='a+')
             else:
                 print(csv_df.to_csv())
         elif json_:
-            sl_helpers.handle_json_output(json_data, raw)
+            sl_helpers.handle_json_output(response, raw)
         else:
-            sl_console.echo_domain_lookup(json_data)
+            sl_console.echo_domain_lookup(response)
     else:
         click.echo("An API call error occurred")        
         sys.exit(1)
         
+
 @main.command('domain_whois', short_help='Lookup the domain WHOIS information for a domain')
 @common_options
 @click.argument('domain')
 def domain_whois(domain, csv_, output_file, json_, raw):
-
-    json_data = sl_helpers.api_call("{}{}".format(sl_constants.DOMAIN_WHOIS_CMD, domain), 'get', settings)
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
     
-    if json_data:
+    response = api.get_domain_whois(domain)
+    
+    if response:
         if csv_:
-            flattened_json = json_normalize(json_data)
+            flattened_json = json_normalize(response)
             if output_file:
                 flattened_json.to_csv(output_file, mode='a+')
             else:
                 print(flattened_json.to_csv())
         elif json_:
-            sl_helpers.handle_json_output(json_data, raw)
+            sl_helpers.handle_json_output(response, raw)
         else:
-            sl_console.echo_domain_whois(json_data)
+            sl_console.echo_domain_whois(response)
     else:
         click.echo("An API call error occurred")                
         sys.exit(1)
-        
-def ip_whois_search(ipaddr):
-    ip_whois_filter = sl_constants.IP_WHOIS_FILTER
-    ip_whois_filter['query'] = ipaddr
-    
-    json_data = sl_helpers.api_call(sl_constants.SEARCH_CMD, 'post', settings, api_filter=ip_whois_filter)
-    
-    if json_data:
-        ip_uuid = json_data['content'][0]['entity']['id']
-        return ip_uuid
-    else:
-        click.echo("An API call error occurred")        
-        sys.exit(1)
-    return False
 
 @main.command('ipaddr_whois', short_help='Lookup the WHOIS information for an IP address')
 @common_options
 @click.argument('ipaddr')
 def ipaddr_whois(ipaddr, csv_, output_file, json_, raw):
-
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
+    
     if sl_helpers.is_ipaddr(ipaddr):
-        ip_uuid = ip_whois_search(ipaddr)
-
-        json_data = sl_helpers.api_call("{}{}".format(sl_constants.IPADDR_WHOIS_CMD, ip_uuid), 'get', settings)
-        
-        if json_data:
+        response = api.get_ipaddr_whois(ipaddr)
+        if response:
             if csv_:
-                flattened_json = json_normalize(json_data)
+                flattened_json = json_normalize(response)
                 if output_file:
                     flattened_json.to_csv(output_file, mode='a+')
                 else:
                     print(flattened_json.to_csv())
             elif json_:
-                sl_helpers.handle_json_output(json_data, raw)
+                sl_helpers.handle_json_output(response, raw)
             else:
-                sl_console.echo_ipaddr_whois(json_data, ipaddr)
+                sl_console.echo_ipaddr_whois(response, ipaddr)
         else:
             click.echo("An API call error occurred")
             sys.exit(1)
     else:
         print("Invalid IP address provided: {}".format(ipaddr))
 
-
 @main.command('cve_search', short_help='Lookup a CVE')
 @common_options
 @click.argument('cve')
 def cve_search(cve, csv_, output_file, json_, raw):
-
-    cve_filter = sl_constants.CVE_FILTER
-    cve_filter['query'] = cve
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
     
-    json_data = sl_helpers.api_call(sl_constants.SEARCH_CMD, 'post', settings, api_filter=cve_filter)
-
-    if json_data:
+    response = api.get_cve(cve)
+    
+    if response:
         if csv_:
-            flattened_json = json_normalize(json_data['content'])
+            flattened_json = json_normalize(response['content'])
             if output_file:
                 flattened_json.to_csv(output_file, mode='a+')
             else:
                 print(flattened_json.to_csv())
         elif json_:
-            sl_helpers.handle_json_output(json_data, raw)
+            sl_helpers.handle_json_output(response, raw)
         else:
-            sl_console.echo_cve_search(json_data, cve)
+            sl_console.echo_cve_search(response, cve)
     else:
         click.echo("An API call error occurred")
         sys.exit(1)
+
 
 @main.command('threats', short_help='Look up a threat record')
 @click.option('--iocs', help='Retrieve the IOCs for a threat record', default=False, is_flag=True)
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
 @common_options
-def threats(incident_id, iocs, json_, raw, csv_, output_file):    
+def threats(incident_id, iocs, json_, raw, csv_, output_file):
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
+
     if incident_id:
         if iocs:
-            json_data = sl_helpers.api_call("{}{}/iocs".format(sl_constants.INTELTHREATS_CMD, incident_id), 'post', settings, api_filter=sl_constants.IOCS_FILTER)
-            if json_data:
-                if csv_:
-                    flattened_json = json_normalize(json_data['content'])
-                    if output_file:
-                        flattened_json.to_csv(output_file, mode='a+')
-                    else:
-                        print(flattened_json.to_csv())
-                elif json_:
-                    sl_helpers.handle_json_output(json_data, raw)
-                else:
-                    sl_console.echo_threats_iocs(json_data)
-            else:
-                click.echo("An API call error occurred")
-                sys.exit(1)
+            response = api.get_threats(incident_id, iocs)
         else:
-            json_data = sl_helpers.api_call("{}{}".format(sl_constants.INTELTHREATS_CMD, incident_id), 'get', settings, api_filter=sl_constants.THREAT_FILTER)
-            
-            if json_data:
-                if csv_:
-                    flattened_json = json_normalize(json_data)
-                    if output_file:
-                        flattened_json.to_csv(output_file, mode='a+')
-                    else:
-                        print(flattened_json.to_csv())
-                elif json_:
-                    sl_helpers.handle_json_output(json_data, raw)
-                else:
-                    sl_console.echo_threats_summary(json_data)
-            else:
-                click.echo("An API call error occurred")
-                sys.exit(1)
+            response = api.get_threats(incident_id, None)
     else:
-        json_data = sl_helpers.api_call("{}{}".format(sl_constants.INTELTHREATS_CMD, sl_constants.INTELTHREATS_FIND_CMD), 'post', settings, api_filter=sl_constants.THREAT_FILTER)
-        if json_data:
-            if csv_:
-                flattened_json = json_normalize(json_data['content'])
-                if output_file:
-                    flattened_json.to_csv(output_file, mode='a+')
-                else:
-                    print(flattened_json.to_csv())
-            elif json_:
-                sl_helpers.handle_json_output(json_data, raw)
+        response = api.get_threats(None, None)
+        
+    if response:
+        if json_:
+            sl_helpers.handle_json_output(response, raw)
+        elif csv_:
+            flattened_json = json_normalize(response['content'])
+            if output_file:
+                flattened_json.to_csv(output_file, mode='a+')
             else:
-                sl_console.echo_threats(json_data)
+                print(flattened_json.to_csv())
         else:
-            click.echo("An API call error occurred")
-            sys.exit(1)
-            
+            if iocs:
+                sl_console.echo_threats_iocs(response)
+            elif incident_id:
+                sl_console.echo_threats(response)
+            else:
+                sl_console.echo_threats_summary(response)
+    else:
+        click.echo("An API call error occurred")
+        sys.exit(1)
+
 @main.command('incidents', short_help='Retrieve all incidents or an incident')
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
 @click.option('--iocs', help='Retrieve the IOCs for a threat record', default=False, is_flag=True)
 @common_options
-def incidents(incident_id, iocs, csv_, output_file, json_, raw):
-    json_data = ""
-    if incident_id:
-        json_data = sl_helpers.api_call("{}{}".format(sl_constants.INCIDENTS_CMD, incident_id), 'get', settings)
-    else:
-        json_data = sl_helpers.api_call("{}{}".format(sl_constants.INCIDENTS_CMD, sl_constants.INCIDENTS_FIND_CMD), 'get', settings)
+def incidents(incident_id, csv_, output_file, json_, raw):
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
         
-    if json_data:
+    response = ""
+    if incident_id:
+        response = api.get_incidents(incident_id)
+    else:
+        response = api.get_incidents(None)
+        
+    if response:
         if csv_:
-            flattened_json = json_normalize(json_data['content'])
+            flattened_json = json_normalize(response['content'])
             if output_file:
                 flattened_json.to_csv(output_file, mode='a+')
             else:
                 print(flattened_json.to_csv())
         elif json_:
-            sl_helpers.handle_json_output(json_data, raw)
+            sl_helpers.handle_json_output(response, raw)
         else:
-            sl_console.echo_incidents(json_data, incident_id)
+            sl_console.echo_incidents(response, incident_id)
     else:
         click.echo("An API call error occurred")
         sys.exit(1)
+
 
 @main.command('intelligence', short_help='search through the Digital Shadows repository')
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
@@ -346,94 +319,77 @@ def incidents(incident_id, iocs, csv_, output_file, json_, raw):
 @click.option('--iocs', help='Retrieve the IOCs for a threat record', default=False, is_flag=True)
 @common_options
 def intelligence(csv_, input_file, output_file, json_, raw, iocs, incident_id):
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
+    
     if incident_id:
         if iocs:
-            json_data = sl_helpers.api_call("{}{}/iocs".format(sl_constants.INTELINCIDENTS_CMD, incident_id), 'post', settings, api_filter=sl_constants.IOCS_FILTER)
-            
-            if json_data:
-                if json_:
-                    sl_helpers.handle_json_output(json_data, raw)
-                else:
-                    sl_console.echo_intelligence_iocs(json_data)
-            else:
-                click.echo("An API call error occurred")
-                sys.exit(1)
+            response = api.get_intel(incident_id, iocs)
         else:
-            json_data = sl_helpers.api_call("{}{}".format(sl_constants.INTELINCIDENTS_CMD, incident_id), 'get', settings, api_filter=sl_constants.THREAT_FILTER)
-            if json_data:
-                if csv_:
-                    flattened_json = json_normalize(json_data['content'])
-                    if output_file:
-                        flattened_json.to_csv(output_file, mode='a+')
-                    else:
-                        print(flattened_json.to_csv())
-                elif json_:
-                    sl_helpers.handle_json_output(json_data, raw)
-                else:
-                    sl_console.echo_intelligence(json_data)
-            else:
-                click.echo("An API call error occurred")
-                sys.exit(1)
+            response = api.get_intel(incident_id, None)
     else:
-        json_data = sl_helpers.api_call("{}{}".format(sl_constants.INTELINCIDENTS_CMD, sl_constants.INTELINCIDENTS_FIND_CMD), 'post', settings, api_filter=sl_constants.INTEL_FILTER)
-        if json_data:
-            if csv_:
-                flattened_json = json_normalize(json_data['content'])
-                if output_file:
-                    flattened_json.to_csv(output_file, mode='a+')
-                else:
-                    print(flattened_json.to_csv())
-            elif json_:
-                sl_helpers.handle_json_output(json_data, raw)
-            else:
-                sl_console.echo_intelligence_summary(json_data)
-        else:
-            click.echo("An API call error occurred")
-            sys.exit(1)
+        response = api.get_intel(None, None)
         
+    if response:
+        if json_:
+            sl_helpers.handle_json_output(response, raw)
+        elif csv_:
+            flattened_json = json_normalize(response['content'])
+            if output_file:
+                flattened_json.to_csv(output_file, mode='a+')
+            else:
+                print(flattened_json.to_csv())
+        else:
+            if iocs:
+                sl_console.echo_intelligence_iocs(response)
+            elif incident_id:
+                sl_console.echo_intelligence(response)
+            else:
+                sl_console.echo_intelligence_summary(response)
+    else:
+        click.echo("An API call error occurred")
+        sys.exit(1)
+
 @main.command('indicator', short_help='search for an IP address as an Indicator Of Compromise')
 @click.option('--ipaddr', help='Provide an IP address to query', type=str)
 @click.option('--input_file', '-i', help='Input file of IP addresses to look up', type=click.File('r'))
 @common_options
 def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
-    search_cmd = "search/find"
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
 
     if input_file:
         for line in input_file:
             ipaddr = IPAddress(line.split(':')[0])
             if sl_helpers.is_ipaddr(ipaddr):
-                search_filter = {"filter":{"dateRange":"ALL","tags":[],"types":["INDICATOR_FEED"]},"pagination":{"offset":0,"size":25},"sort":{"property":"relevance","direction":"DESCENDING"},"query":str(ipaddr),"facets":["RESULTS_TYPE"]}
-                json_data = sl_helpers.api_call(search_cmd, 'post', settings, api_filter=search_filter)
-                if json_data:
+                response = api.get_indicators(ipaddr)
+                if response:
                     if csv_:
-                        flattened_json = json_normalize(json_data['content'])
+                        flattened_json = json_normalize(response['content'])
                         if output_file:
                             flattened_json.to_csv(output_file, mode='a+')
                         else:
                             print(flattened_json.to_csv())
                     elif json_:
-                        sl_helpers.handle_json_output(json_data, raw)
+                        sl_helpers.handle_json_output(response, raw)
                     else:
-                        sl_console.echo_indicator(json_data)
+                        sl_console.echo_indicator(response, ipaddr)
                 else:
                     click.echo("An API call error occurred")
                     sys.exit(1)
             time.sleep(60)
     elif ipaddr:
         if sl_helpers.is_ipaddr(ipaddr):
-            search_filter = {"filter":{"dateRange":"ALL","tags":[],"types":["INDICATOR_FEED"]},"pagination":{"offset":0,"size":25},"sort":{"property":"relevance","direction":"DESCENDING"},"query":str(ipaddr),"facets":["RESULTS_TYPE"]}
-            json_data = sl_helpers.api_call(search_cmd, 'post', settings, api_filter=search_filter)
-            if json_data:
+            response = api.get_indicators(ipaddr)
+            if response:
                 if csv_:
-                    flattened_json = json_normalize(json_data['content'])
+                    flattened_json = json_normalize(response['content'])
                     if output_file:
                         flattened_json.to_csv(output_file, mode='a+')
                     else:
                         print(flattened_json.to_csv())
                 elif json_:
-                    sl_helpers.handle_json_output(json_data, raw)
+                    sl_helpers.handle_json_output(response, raw)
                 else:
-                    sl_console.echo_indicator_ipaddr(json_data, ipaddr)
+                    sl_console.echo_indicator_ipaddr(response, ipaddr)
             else:
                 click.echo("An API call error occurred")
                 sys.exit(1)

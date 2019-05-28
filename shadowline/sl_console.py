@@ -123,15 +123,17 @@ def echo_intelligence_iocs(json_data):
 def echo_intelligence(json_data):
     print(blessed_t.blue("Intelligence"))
     print("Title: {}, Severity: {}, IOCs: {}".format(json_data['title'], json_data['severity'], json_data['indicatorOfCompromiseCount']))
-    print("Summary: {}".format(json_data['summary']))
+    if 'summary' in json_data:
+        print("Summary: {}".format(json_data['summary']))
 
 def echo_intelligence_summary(json_data):
     for results in json_data['content']:
         print("ID: {}, Title: {}, Severity: {}, IOCs: {}".format(results['id'], results['title'], results['severity'], results['indicatorOfCompromiseCount']))
-        print("Summary: {}".format(results['summary']))
-        print("")
+        if 'summary' in json_data:
+            print("Summary: {}".format(results['summary']))
+            print("")
 
-def echo_indicator(json_data):
+def echo_indicator(json_data, ipaddr):
     for entry in json_data['content']:
         if entry['type'] == 'WEBROOT_IP':
             print("{},{}".format(ipaddr, entry['entity']['currentlyClassifiedAsThreat']))
