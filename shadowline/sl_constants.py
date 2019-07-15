@@ -10,7 +10,9 @@ CVE_FILTER = {"filter":{"dateRange":"ALL","tags":[],"types":["VULNERABILITY_EXPL
 THREAT_FILTER = {"filter":{"dateRange":"P6M","dateRangeField":"lastActive","tags":[],"tagOperator":"AND","threatLevels":[],"relevantToClientOnly":"false"},"sort":{"property":"lastActive","direction":"DESCENDING"},"pagination":{"size":12,"offset":0}}
 IOCS_FILTER = {"filter":{},"sort":{"property":"value","direction":"ASCENDING"}}
 INTEL_FILTER = {"filter":{"severities":[],"tags":[],"tagOperator":"AND","dateRange":"ALL","dateRangeField":"published","types":[],"withFeedback":"true","withoutFeedback":"true"},"sort":{"property":"date","direction":"DESCENDING"},"pagination":{"size":50,"offset":0}}
-
+CVE_PRIORITY_FILTER = {"filter":{"alertSuperseded":"false","dateRange":"ALL","tags":[],"types":["VULNERABILITY_EXPLOIT"]},"pagination":{"offset":0,"size":20},"sort":{"property":"relevance","direction":"DESCENDING"},"query":"","facets":["RESULTS_TYPE"]}
+PROFILES_FILTER = {"filter":{"alertSuperseded":"false","dateRange":"ALL","tags":[],"types":["ACTORS","CAMPAIGNS","EVENT","LOCATION"]},"pagination":{"offset":0,"size":20},"sort":{"property":"relevance","direction":"DESCENDING"},"query":"","facets":["RESULTS_TYPE"]}
+INTEL_INCIDENT_FILTER = {"filter":{"alertSuperseded":"false","dateRange":"ALL","tags":[],"types":["INTEL_INCIDENT"]},"pagination":{"offset":0,"size":20},"sort":{"property":"relevance","direction":"DESCENDING"},"query":"","facets":["RESULTS_TYPE"]}
 ### Portal API endpoints
 # Databreaches
 DATABREACH_FIND_CMD = "data-breach/find"

@@ -313,6 +313,119 @@ def incidents(incident_id, csv_, output_file, json_, raw):
         sys.exit(1)
 
 
+def lookup_cve(cve):
+    api = searchlight.SearchLightApi(settings.USERNAME, settings.PASSWORD)
+
+    priority_result = {}
+    cve_result = []
+    exploit_result = []
+    actor_result = []
+    intel_incident_result = []
+    facet_result = []
+    
+    cve_response = api.get_cve_priority(cve)
+    #sl_helpers.handle_json_output(cve_response, raw)
+    profiles_response = api.get_profiles(cve)
+    #sl_helpers.handle_json_output(profiles_response, raw)
+    intel_incident_response = api.get_intel_incident(cve)
+    #sl_helpers.handle_json_output(intel_incident_response, raw)
+    
+    for result in cve_response['content']:
+        if result['type'] == 'VULNERABILITY':
+            cve_id = result['entity']['cveIdentifier']
+            if cve_id == cve:
+                description = result['entity']['description']
+                cvss2score = result['entity']['cvss2Score']['baseScore']
+                authentication = result['entity']['cvss2Score']['authentication']
+                access_vector = result['entity']['cvss2Score']['accessVector']
+                access_complexity = result['entity']['cvss2Score']['accessComplexity']
+                cve_result.append({'cve_id':cve_id, 'description':description, 'cvss2score':cvss2score, 'authentication':authentication, 'access_vector':access_vector, 'access_complexity':access_complexity})
+        elif result['type'] == 'EXPLOIT':
+            exploit_title = result['entity']['title']
+            exploit_type = result['entity']['type']
+            exploit_platform = result['entity']['platform']
+            exploit_sourceuri = result['entity']['sourceUri']
+            exploit_result.append({'exploit_title':exploit_title, 'exploit_type':exploit_type, 'exploit_platform':exploit_platform, 'exploit_sourceuri':exploit_sourceuri})
+
+    for result in profiles_response['content']:
+        if result['type'] == 'ACTOR':
+            name = result['entity']['primaryTag']['name']
+            actor_type = result['entity']['primaryTag']['type']
+            threat_level = result['entity']['threatLevel']['type']
+            actor_result.append({ 'name':name, 'actor_type':actor_type, 'threat_level':threat_level })
+
+    for result in intel_incident_response['content']:
+        title = result['entity']['title']
+        severity = result['entity']['severity']
+        source = result['entity']['entitySummary']['source']
+        intel_incident_result.append({ 'title':title, 'severity':severity, 'source':source })
+
+    blog_post = ''
+    web_page = ''
+    forum_post = ''
+    paste = ''
+    conversation_fragment = ''
+    marketplace_listing = ''
+        
+    for facets in intel_incident_response['facets']['typeCounts']:
+        if facets['key'] == "BLOG_POST":
+            blog_post = facets['count']
+        elif facets['key'] == "WEB_PAGE":
+            web_page = facets['count']
+        elif facets['key'] == "FORUM_POST":
+            forum_post = facets['count']
+        elif facets['key'] == "PASTE":
+            paste = facets['count']
+        elif facets['key'] == "CONVERSATION_FRAGMENT":
+            conversation_fragment = facets['count']
+        elif facets['key'] == "MARKETPLACE_LISTING":
+            marketplace_listing = facets['count']
+        facet_result = { 'blog_post':blog_post, 'web_page':web_page, 'forum_post':forum_post, 'paste':paste, 'conversation_fragment':conversation_fragment, 'marketplace_listing':marketplace_listing }
+
+    priority_result = {'cve_result':cve_result, 'exploit_result':exploit_result, 'actor_result':actor_result, 'intel_incident_result':intel_incident_result, 'facet_result':facet_result}
+
+    return priority_result
+    
+@main.command('priority', short_help='get CVE priorities')
+@click.option('--cve', 'cve_', help='Provide a CVE to lookup', type=str)
+@click.option('--input_file', '-i', help='Input file of CVEs to look up', type=click.File('r'))
+@common_options
+def priority(cve_, csv_, input_file, output_file, json_, raw):
+    response = {}
+    all_response = []
+    
+    if input_file:
+        for cve in input_file:
+            response = lookup_cve(cve.rstrip())
+            if response:
+                all_response.append(response)
+        if csv_:
+            flattened_json = json_normalize(all_response)
+            if output_file:
+                flattened_json.to_csv(output_file, mode='a+')
+            else:
+                print(flattened_json.to_csv(sep='|'))
+        elif json_:
+            sl_helpers.handle_json_output(all_response, raw)
+        else:
+            sl_console.echo_priority(all_response)
+    elif cve_:
+        response = lookup_cve(cve_)
+        if response:
+            if csv_:
+                flattened_json = json_normalize(response)
+                if output_file:
+                    flattened_json.to_csv(output_file, mode='a+')
+                else:
+                    print(flattened_json.to_csv(sep='|'))
+            elif json_:
+                sl_helpers.handle_json_output(response, raw)
+            else:
+                sl_console.echo_priority(response)
+        else:
+            click.echo("An API call error occurred")
+            sys.exit(1)
+            
 @main.command('intelligence', short_help='search through the Digital Shadows repository')
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
 @click.option('--input_file', '-i', help='Input file of IP addresses to look up', type=click.File('r'))

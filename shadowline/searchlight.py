@@ -66,6 +66,30 @@ class SearchLightApi():
 
     return json_data
 
+  def get_cve_priority(self, cve):
+    cve_filter = sl_constants.CVE_PRIORITY_FILTER
+    cve_filter['query'] = cve
+
+    json_data = sl_helpers.api_call(sl_constants.SEARCH_CMD, 'post', self.settings, api_filter=cve_filter)
+
+    return json_data
+
+  def get_profiles(self, cve):
+    cve_filter = sl_constants.PROFILES_FILTER
+    cve_filter['query'] = cve
+
+    json_data = sl_helpers.api_call(sl_constants.SEARCH_CMD, 'post', self.settings, api_filter=cve_filter)
+
+    return json_data
+
+  def get_intel_incident(self, cve):
+    cve_filter = sl_constants.INTEL_INCIDENT_FILTER
+    cve_filter['query'] = cve
+
+    json_data = sl_helpers.api_call(sl_constants.SEARCH_CMD, 'post', self.settings, api_filter=cve_filter)
+
+    return json_data
+  
   def get_threats(self, incident_id, iocs):
     if iocs:
       json_data = sl_helpers.api_call("{}{}/iocs".format(sl_constants.INTELTHREATS_CMD, incident_id), 'post', self.settings, api_filter=sl_constants.IOCS_FILTER)
