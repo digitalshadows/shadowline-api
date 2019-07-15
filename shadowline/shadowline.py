@@ -404,7 +404,19 @@ def convert_priority_json_to_csv(json_data):
         csv_output.append('{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}'.format(json_data['cve_result'][0]['cve_id'],json_data['cve_result'][0]['description'],json_data['cve_result'][0]['cvss2score'],json_data['cve_result'][0]['authentication'],json_data['cve_result'][0]['access_vector'],json_data['cve_result'][0]['access_complexity'], exploit['exploit_title'], exploit['exploit_type'], exploit['exploit_platform'], exploit['exploit_sourceuri'], len(json_data['actor_result']),len(json_data['event_result']),len(json_data['campaign_result']), len(json_data['intel_incident_result']), json_data['facet_result']['blog_post'], json_data['facet_result']['web_page'], json_data['facet_result']['forum_post'], json_data['facet_result']['paste'], json_data['facet_result']['conversation_fragment'], json_data['facet_result']['marketplace_listing']))
     
     return csv_output
+
+def convert_priority_json_to_csv_all(json_data_list):
+    csv_output = []
+
+    csv_output.append('{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}'.format("CVE","Description","CVSS2","Authentication","AccessVector","AccessComplexity","ExploitTitle","ExploitType","ExploitPlatform","ExploitSourceUri","ACTOR","EVENT","CAMPAIGNS","SHARED_INCIDENT","BlogPost","WebPage","ForumPost","ConversationFragment","MarketplaceListing"))
+
+    for json_data in json_data_list:
+        for exploit in json_data['exploit_result']:
+            csv_output.append('{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}'.format(json_data['cve_result'][0]['cve_id'],json_data['cve_result'][0]['description'],json_data['cve_result'][0]['cvss2score'],json_data['cve_result'][0]['authentication'],json_data['cve_result'][0]['access_vector'],json_data['cve_result'][0]['access_complexity'], exploit['exploit_title'], exploit['exploit_type'], exploit['exploit_platform'], exploit['exploit_sourceuri'], len(json_data['actor_result']),len(json_data['event_result']),len(json_data['campaign_result']), len(json_data['intel_incident_result']), json_data['facet_result']['blog_post'], json_data['facet_result']['web_page'], json_data['facet_result']['forum_post'], json_data['facet_result']['paste'], json_data['facet_result']['conversation_fragment'], json_data['facet_result']['marketplace_listing']))
     
+    return csv_output
+
+
 @main.command('priority', short_help='get CVE priorities')
 @click.option('--cve', 'cve_', help='Provide a CVE to lookup', type=str)
 @click.option('--input_file', '-i', help='Input file of CVEs to look up', type=click.File('r'))
@@ -419,11 +431,14 @@ def priority(cve_, csv_, input_file, output_file, json_, raw):
             if response:
                 all_response.append(response)
         if csv_:
-            flattened_json = json_normalize(all_response)
+            csv_output = convert_priority_json_to_csv_all(all_response)
             if output_file:
-                flattened_json.to_csv(output_file, mode='a+')
+                with open(output_file, 'a+') as f:
+                    for line in csv_output:
+                        f.write(line+'\n')
             else:
-                print(flattened_json.to_csv(sep='|'))
+                for line in csv_output:
+                    print(line)
         elif json_:
             sl_helpers.handle_json_output(all_response, raw)
         else:
