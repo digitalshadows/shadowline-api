@@ -1,5 +1,5 @@
-from . import sl_constants
-from . import sl_helpers
+import sl_constants
+import sl_helpers
 
 from dotmap import DotMap
 

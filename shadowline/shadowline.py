@@ -6,9 +6,9 @@ import click
 import time
 import os
 
-from . import searchlight
-from . import sl_helpers
-from . import sl_console
+import searchlight
+import sl_helpers
+import sl_console
 
 from pathlib import Path
 from dotmap import DotMap
@@ -320,6 +320,8 @@ def lookup_cve(cve):
     cve_result = []
     exploit_result = []
     actor_result = []
+    event_result = []
+    campaign_result = []
     intel_incident_result = []
     facet_result = []
     
@@ -353,7 +355,14 @@ def lookup_cve(cve):
             actor_type = result['entity']['primaryTag']['type']
             threat_level = result['entity']['threatLevel']['type']
             actor_result.append({ 'name':name, 'actor_type':actor_type, 'threat_level':threat_level })
-
+        elif result['type'] == 'EVENT':
+            name = result['entity']['primaryTag']['name']
+            entity_type = result['entity']['primaryTag']['type']
+            event_result.append({ 'name':name, 'entity_type':entity_type })
+        elif result['type'] == 'CAMPAIGN':
+            name = result['entity']['primaryTag']['name']
+            entity_type = result['entity']['primaryTag']['type']
+            campaign_result.append({ 'name':name, 'entity_type':entity_type })
     for result in intel_incident_response['content']:
         title = result['entity']['title']
         severity = result['entity']['severity']
@@ -382,9 +391,19 @@ def lookup_cve(cve):
             marketplace_listing = facets['count']
         facet_result = { 'blog_post':blog_post, 'web_page':web_page, 'forum_post':forum_post, 'paste':paste, 'conversation_fragment':conversation_fragment, 'marketplace_listing':marketplace_listing }
 
-    priority_result = {'cve_result':cve_result, 'exploit_result':exploit_result, 'actor_result':actor_result, 'intel_incident_result':intel_incident_result, 'facet_result':facet_result}
+    priority_result = {'cve_result':cve_result, 'exploit_result':exploit_result, 'actor_result':actor_result, 'event_result':event_result, 'campaign_result':campaign_result, 'intel_incident_result':intel_incident_result, 'facet_result':facet_result}
 
     return priority_result
+
+def convert_priority_json_to_csv(json_data):
+    csv_output = []
+
+    csv_output.append('{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}'.format("CVE","Description","CVSS2","Authentication","AccessVector","AccessComplexity","ExploitTitle","ExploitType","ExploitPlatform","ExploitSourceUri","ACTOR","EVENT","CAMPAIGNS","SHARED_INCIDENT","BlogPost","WebPage","ForumPost","ConversationFragment","MarketplaceListing"))
+    
+    for exploit in json_data['exploit_result']:
+        csv_output.append('{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}'.format(json_data['cve_result'][0]['cve_id'],json_data['cve_result'][0]['description'],json_data['cve_result'][0]['cvss2score'],json_data['cve_result'][0]['authentication'],json_data['cve_result'][0]['access_vector'],json_data['cve_result'][0]['access_complexity'], exploit['exploit_title'], exploit['exploit_type'], exploit['exploit_platform'], exploit['exploit_sourceuri'], len(json_data['actor_result']),len(json_data['event_result']),len(json_data['campaign_result']), len(json_data['intel_incident_result']), json_data['facet_result']['blog_post'], json_data['facet_result']['web_page'], json_data['facet_result']['forum_post'], json_data['facet_result']['paste'], json_data['facet_result']['conversation_fragment'], json_data['facet_result']['marketplace_listing']))
+    
+    return csv_output
     
 @main.command('priority', short_help='get CVE priorities')
 @click.option('--cve', 'cve_', help='Provide a CVE to lookup', type=str)
@@ -413,11 +432,12 @@ def priority(cve_, csv_, input_file, output_file, json_, raw):
         response = lookup_cve(cve_)
         if response:
             if csv_:
-                flattened_json = json_normalize(response)
+                flattened_json = convert_priority_json_to_csv(response)
                 if output_file:
                     flattened_json.to_csv(output_file, mode='a+')
                 else:
-                    print(flattened_json.to_csv(sep='|'))
+                    for line in flattened_json:
+                        print(line)
             elif json_:
                 sl_helpers.handle_json_output(response, raw)
             else:
