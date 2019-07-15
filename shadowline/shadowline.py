@@ -478,7 +478,12 @@ def indicator(ipaddr, csv_, input_file, output_file, json_, raw):
                     if csv_:
                         flattened_json = json_normalize(response['content'])
                         if output_file:
-                            flattened_json.to_csv(output_file, mode='a+')
+                            for entry in response['content']:
+                                if entry['type'] == 'WEBROOT_IP':
+                                    print("{},{}".format(ipaddr, entry['entity']['currentlyClassifiedAsThreat']))
+                                    with open(output_file,'a+') as f:
+                                        f.write("{},{}\n".format(ipaddr, entry['entity']['currentlyClassifiedAsThreat']))
+                            #flattened_json.to_csv(output_file, mode='a+')
                         else:
                             print(flattened_json.to_csv())
                     elif json_:
