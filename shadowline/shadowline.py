@@ -375,20 +375,21 @@ def lookup_cve(cve):
     paste = ''
     conversation_fragment = ''
     marketplace_listing = ''
-        
-    for facets in intel_incident_response['facets']['typeCounts']:
-        if facets['key'] == "BLOG_POST":
-            blog_post = facets['count']
-        elif facets['key'] == "WEB_PAGE":
-            web_page = facets['count']
-        elif facets['key'] == "FORUM_POST":
-            forum_post = facets['count']
-        elif facets['key'] == "PASTE":
-            paste = facets['count']
-        elif facets['key'] == "CONVERSATION_FRAGMENT":
-            conversation_fragment = facets['count']
-        elif facets['key'] == "MARKETPLACE_LISTING":
-            marketplace_listing = facets['count']
+    
+    if 'facets' in profiles_response:
+        for facets in profiles_response['facets']['typeCounts']:
+            if facets['key'] == "BLOG_POST":
+                blog_post = facets['count']
+            elif facets['key'] == "WEB_PAGE":
+                web_page = facets['count']
+            elif facets['key'] == "FORUM_POST":
+                forum_post = facets['count']
+            elif facets['key'] == "PASTE":
+                paste = facets['count']
+            elif facets['key'] == "CONVERSATION_FRAGMENT":
+                conversation_fragment = facets['count']
+            elif facets['key'] == "MARKETPLACE_LISTING":
+                marketplace_listing = facets['count']
         facet_result = { 'blog_post':blog_post, 'web_page':web_page, 'forum_post':forum_post, 'paste':paste, 'conversation_fragment':conversation_fragment, 'marketplace_listing':marketplace_listing }
 
     priority_result = {'cve_result':cve_result, 'exploit_result':exploit_result, 'actor_result':actor_result, 'event_result':event_result, 'campaign_result':campaign_result, 'intel_incident_result':intel_incident_result, 'facet_result':facet_result}
