@@ -5,7 +5,7 @@ import validators
 
 from pprint import pprint
 from pandas.io.json import json_normalize
-import sl_constants
+from . import sl_constants
 from netaddr import IPAddress, IPNetwork
 from pygments import highlight, lexers, formatters
 from retrying import retry

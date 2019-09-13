@@ -6,9 +6,9 @@ import click
 import time
 import os
 
-import searchlight
-import sl_helpers
-import sl_console
+from . import searchlight
+from . import sl_helpers
+from . import sl_console
 
 from pathlib import Path
 from dotmap import DotMap
