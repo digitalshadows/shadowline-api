@@ -199,3 +199,30 @@ $ shadowline incidents
 This will provide a list of the incident IDs. More specific information can be found with...
 
 The raw incident information can be seen with `--json` or `--csv`.
+
+### Example (Prioritization of CVEs)
+
+Shadowline can search through the Digital Shadows intelligence repository for information related to CVEs.
+
+```bash
+$ shadowline priority --cve CVE-2019-0708
+```
+
+This will return information on:
+1. The CVE itself
+2. Any publicly available exploits associated with the CVE
+3. Any information on actors known to exploit that CVE
+4. Any major events where that CVE was used
+5. Any campaigns where that CVE was known to be used
+6. Any intelligence incidents referencing that CVE
+7. A summary of information from our various crawlers on that CVE
+
+A file containing a list of CVEs can also be processed using this feature:
+
+```bash
+$ shadowline priority -i sample_cves.txt
+```
+
+The output from this feature can also be present as JSON or CSV with `--json` or `--csv` flags.
+
+The output from this feature can be save to a file with the `-o <filename>` option.
