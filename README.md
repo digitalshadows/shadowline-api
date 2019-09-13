@@ -2,6 +2,10 @@
 
 A Python CLI library for interfacing with the Digital Shadows Portal API.
 
+This is the **Development** branch of Shadowline.
+
+**This tool requires a Digital Shadows Portal API key in order to function**
+
 Shadowline can be invoked with `shadowline`. It is written in Python 3.
 
 ## Installation
