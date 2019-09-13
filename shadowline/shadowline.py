@@ -326,11 +326,11 @@ def lookup_cve(cve):
     facet_result = []
     
     cve_response = api.get_cve_priority(cve)
-    #sl_helpers.handle_json_output(cve_response, raw)
+
     profiles_response = api.get_profiles(cve)
-    #sl_helpers.handle_json_output(profiles_response, raw)
+
     intel_incident_response = api.get_intel_incident(cve)
-    #sl_helpers.handle_json_output(intel_incident_response, raw)
+
     
     for result in cve_response['content']:
         if result['type'] == 'VULNERABILITY':

@@ -10,8 +10,28 @@ def echo_priority(json_data):
             
     if 'exploit_result' in json_data:
         for exploit_result in json_data['exploit_result']:
-            print("{} {} {} {} {} {} {} {}".format(blessed_t.cyan("Exploit Title:"), blessed_t.white("{}".format(exploit_result['exploit_title'])), blessed_t.cyan("Exploit Type:"), blessed_t.white("{}".format(exploit_result['exploit_type'])), blessed_t.cyan("Exploit Platform:"), blessed_t.white("{}".format(exploit_result['exploit_platform'])), blessed_t.cyan("Exploit Source URI:"), blessed_t.white("{}".format(exploit_result['exploit_sourceuri']))))
-                    
+            print("{} {} {} {} {} {} {} {}".format(blessed_t.red("Exploit Title:"), blessed_t.white("{}".format(exploit_result['exploit_title'])), blessed_t.red("Exploit Type:"), blessed_t.white("{}".format(exploit_result['exploit_type'])), blessed_t.red("Exploit Platform:"), blessed_t.white("{}".format(exploit_result['exploit_platform'])), blessed_t.red("Exploit Source URI:"), blessed_t.white("{}".format(exploit_result['exploit_sourceuri']))))
+
+    if 'actor_result' in json_data:
+        for actor_result in json_data['actor_result']:
+            print("{} {} {} {} {} {}".format(blessed_t.magenta("Actor Name:"), blessed_t.white("{}".format(actor_result['name'])), blessed_t.magenta("Actor Type:"), blessed_t.white("{}".format(actor_result['actor_type'])), blessed_t.magenta("Threat Level:"), blessed_t.white("{}".format(actor_result['threat_level']))))
+            
+    if 'event_result' in json_data:
+        for event_result in json_data['event_result']:
+            print("{} {} {} {}".format(blessed_t.yellow("Event Name:"), blessed_t.white("{}".format(event_result['name'])), blessed_t.yellow("Entity Type:"), blessed_t.white("{}".format(event_result['entity_type']))))
+            
+    if 'campaign_result' in json_data:
+        for campaign_result in json_data['campaign_result']:
+            print("{} {} {} {}".format(blessed_t.yellow("Campaign Name:"), blessed_t.white("{}".format(event_result['name'])), blessed_t.yellow("Entity Type:"), blessed_t.white("{}".format(event_result['entity_type']))))
+
+    if 'intel_incident_result' in json_data:
+        for intel_incident_result in json_data['intel_incident_result']:
+            print("{} {} {} {} {} {}".format(blessed_t.green("Title:"), blessed_t.white("{}".format(intel_incident_result['title'])), blessed_t.green("Severity:"), blessed_t.white("{}".format(intel_incident_result['severity'])), blessed_t.green("Source:"), blessed_t.white("{}".format(intel_incident_result['source']))))
+
+    if 'facet_result' in json_data:
+        facet_result = json_data['facet_result']
+        print("{} {} {} {} {} {} {} {} {} {} {} {}".format(blessed_t.blue("Blog Posts:"), blessed_t.white("{}".format(facet_result['blog_post'])), blessed_t.blue("Web Pages:"), blessed_t.white("{}".format(facet_result['web_page'])), blessed_t.blue("Forum Posts:"), blessed_t.white("{}".format(facet_result['forum_post'])), blessed_t.blue("Pastes:"), blessed_t.white("{}".format(facet_result['paste'])), blessed_t.blue("Conversation Fragments:"), blessed_t.white("{}".format(facet_result['conversation_fragment'])), blessed_t.blue("Marketplace Listings:"), blessed_t.white("{}".format(facet_result['marketplace_listing']))))
+            
 def echo_databreach_summary(json_data):
     print("{} {}".format(blessed_t.blue("Total Breaches:"), blessed_t.white("{}".format(json_data['totalBreaches']))))
     for breach in json_data['breachesPerDomain']:
