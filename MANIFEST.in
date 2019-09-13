@@ -1,0 +1,1 @@
+include .gitignore LICENSE MANIFEST.in README.md requirements.txt VERSION

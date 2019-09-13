@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: shadowline
+Version: 0.0.1
+Summary: A Python CLI library for interfacing with the Digital Shadows Portal API.
+Home-page: https://www.digitalshadows.com/
+Author: Richard Gold
+Author-email: richard.gold@digitalshadows.com
+License: Copyright (c) 2019 Digital Shadows Ltd
+Description: A Python CLI library for interfacing with the Digital Shadows Portal API.
+Platform: linux
