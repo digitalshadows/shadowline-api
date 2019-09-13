@@ -1,3 +1,4 @@
+import re
 import json
 import requests
 import sys
@@ -39,6 +40,14 @@ def is_netrange(cidr):
         print("{} is not a valid IP Network range: {}".format(cidr, e))
         return False
 
+def is_cve(cve):
+    exp = '[C][V][E][-]\d\d\d\d[-]\d\d\d\d'
+    p = re.compile(exp)
+    if p.match(cve):
+        return True
+    else:
+        return False
+    
 def retry_if_requests_error(exception):
     return isinstance(exception, requests.exceptions.ConnectionError)
 

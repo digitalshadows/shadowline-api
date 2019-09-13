@@ -428,9 +428,13 @@ def priority(cve_, csv_, input_file, output_file, json_, raw):
     
     if input_file:
         for cve in input_file:
-            response = lookup_cve(cve.rstrip())
-            if response:
-                all_response.append(response)
+            if sl_helpers.is_cve(cve):
+                response = lookup_cve(cve.rstrip())
+                if response:
+                    all_response.append(response)
+            else:
+                click.echo("An invalid CVE was entered {} , CVEs must be in the format: CVE-XXXX-XXXX".format(cve))
+                pass
         if csv_:
             csv_output = convert_priority_json_to_csv_all(all_response)
             if output_file:
@@ -445,22 +449,25 @@ def priority(cve_, csv_, input_file, output_file, json_, raw):
         else:
             sl_console.echo_priority(all_response)
     elif cve_:
-        response = lookup_cve(cve_)
-        if response:
-            if csv_:
-                flattened_json = convert_priority_json_to_csv(response)
-                if output_file:
-                    flattened_json.to_csv(output_file, mode='a+')
+        if sl_helpers.is_cve(cve_):
+            response = lookup_cve(cve_)
+            if response:
+                if csv_:
+                    flattened_json = convert_priority_json_to_csv(response)
+                    if output_file:
+                        flattened_json.to_csv(output_file, mode='a+')
+                    else:
+                        for line in flattened_json:
+                            print(line)
+                elif json_:
+                    sl_helpers.handle_json_output(response, raw)
                 else:
-                    for line in flattened_json:
-                        print(line)
-            elif json_:
-                sl_helpers.handle_json_output(response, raw)
+                    sl_console.echo_priority(response)
             else:
-                sl_console.echo_priority(response)
+                click.echo("An API call error occurred")
+                sys.exit(1)
         else:
-            click.echo("An API call error occurred")
-            sys.exit(1)
+            click.echo("An invalid CVE was entered {}, CVEs must be in the format: CVE-XXXX-XXXX".format(cve_))
             
 @main.command('intelligence', short_help='search through the Digital Shadows repository')
 @click.option('--incident_id', help='Provide an incident ID to lookup', type=str)
