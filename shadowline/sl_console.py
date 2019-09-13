@@ -2,6 +2,16 @@ from blessed import Terminal
 
 blessed_t = Terminal()
 
+def echo_priority(json_data):
+    if 'cve_result' in json_data:
+        for cve_result in json_data['cve_result']:
+            print("{} {} {} {} {} {} {} {} {} {}".format(blessed_t.cyan("CVE ID:"), blessed_t.white("{}".format(cve_result['cve_id'])), blessed_t.cyan("CVSS2 Score:"), blessed_t.white("{}".format(cve_result['cvss2score'])), blessed_t.cyan("Authentication:"), blessed_t.white("{}".format(cve_result['authentication'])), blessed_t.cyan("Access Vector:"), blessed_t.white("{}".format(cve_result['access_vector'])), blessed_t.cyan("Access Complexity:"), blessed_t.white("{}".format(cve_result['access_complexity']))))
+            print("{} {}".format(blessed_t.cyan("Description:"), blessed_t.white("{}".format(cve_result['description']))))
+            
+    if 'exploit_result' in json_data:
+        for exploit_result in json_data['exploit_result']:
+            print("{} {} {} {} {} {} {} {}".format(blessed_t.cyan("Exploit Title:"), blessed_t.white("{}".format(exploit_result['exploit_title'])), blessed_t.cyan("Exploit Type:"), blessed_t.white("{}".format(exploit_result['exploit_type'])), blessed_t.cyan("Exploit Platform:"), blessed_t.white("{}".format(exploit_result['exploit_platform'])), blessed_t.cyan("Exploit Source URI:"), blessed_t.white("{}".format(exploit_result['exploit_sourceuri']))))
+                    
 def echo_databreach_summary(json_data):
     print("{} {}".format(blessed_t.blue("Total Breaches:"), blessed_t.white("{}".format(json_data['totalBreaches']))))
     for breach in json_data['breachesPerDomain']:
