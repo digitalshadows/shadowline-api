@@ -206,31 +206,56 @@ def ip_whois_search(ipaddr):
     return False
 
 @main.command('ipaddr_whois', short_help='Lookup the WHOIS information for an IP address')
+@click.option('--input_file', '-if', help='Input file of IP addresses to look up', type=click.File('r'))
+@click.option('--ipaddr', '-i', help='Provide an IP address to query', type=str)
 @common_options
-@click.argument('ipaddr')
-def ipaddr_whois(ipaddr, csv_, output_file, json_, raw):
+def ipaddr_whois(ipaddr, csv_, input_file, output_file, json_, raw):
+    if input_file:
+        for line in input_file:
+            ipaddr = line.rstrip()
+            if sl_helpers.is_ipaddr(ipaddr):
+                ip_uuid = ip_whois_search(ipaddr)
 
-    if sl_helpers.is_ipaddr(ipaddr):
-        ip_uuid = ip_whois_search(ipaddr)
-
-        json_data = sl_helpers.api_call("{}{}".format(sl_constants.IPADDR_WHOIS_CMD, ip_uuid), 'get', settings)
+                json_data = sl_helpers.api_call("{}{}".format(sl_constants.IPADDR_WHOIS_CMD, ip_uuid), 'get', settings)
         
-        if json_data:
-            if csv_:
-                flattened_json = json_normalize(json_data)
-                if output_file:
-                    flattened_json.to_csv(output_file, mode='a+')
+                if json_data:
+                    if csv_:
+                        flattened_json = json_normalize(json_data)
+                        if output_file:
+                            flattened_json.to_csv(output_file, mode='a+')
+                        else:
+                            print(flattened_json.to_csv())
+                    elif json_:
+                        sl_helpers.handle_json_output(json_data, raw)
+                    else:
+                        sl_console.echo_ipaddr_whois(json_data, ipaddr)
                 else:
-                    print(flattened_json.to_csv())
-            elif json_:
-                sl_helpers.handle_json_output(json_data, raw)
+                    click.echo("An API call error occurred")
+                    sys.exit(1)
             else:
-                sl_console.echo_ipaddr_whois(json_data, ipaddr)
-        else:
-            click.echo("An API call error occurred")
-            sys.exit(1)
+                print("Invalid IP address provided: {}".format(ipaddr))
     else:
-        print("Invalid IP address provided: {}".format(ipaddr))
+        if sl_helpers.is_ipaddr(ipaddr):
+            ip_uuid = ip_whois_search(ipaddr)
+
+            json_data = sl_helpers.api_call("{}{}".format(sl_constants.IPADDR_WHOIS_CMD, ip_uuid), 'get', settings)
+        
+            if json_data:
+                if csv_:
+                    flattened_json = json_normalize(json_data)
+                    if output_file:
+                        flattened_json.to_csv(output_file, mode='a+')
+                    else:
+                        print(flattened_json.to_csv())
+                elif json_:
+                    sl_helpers.handle_json_output(json_data, raw)
+                else:
+                    sl_console.echo_ipaddr_whois(json_data, ipaddr)
+            else:
+                click.echo("An API call error occurred")
+                sys.exit(1)
+        else:
+            print("Invalid IP address provided: {}".format(ipaddr))
 
 
 @main.command('cve_search', short_help='Lookup a CVE')
