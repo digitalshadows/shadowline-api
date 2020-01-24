@@ -62,8 +62,10 @@ def echo_domain_whois(json_data):
 
 def echo_ipaddr_whois(json_data, ipaddr):
     print(blessed_t.blue("IP address"), blessed_t.green("{}".format(ipaddr)))
-    print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("NetName"), blessed_t.cyan(json_data['netName']), blessed_t.yellow("Country"), blessed_t.cyan(json_data['countryName']), blessed_t.yellow("IP range start"), blessed_t.cyan(json_data['ipRangeStart']), blessed_t.yellow("IP range end"), blessed_t.cyan(json_data['ipRangeEnd']))
-
+    if 'countryName' in json_data:
+        print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("NetName"), blessed_t.cyan(json_data['netName']), blessed_t.yellow("Country"), blessed_t.cyan(json_data['countryName']), blessed_t.yellow("IP range start"), blessed_t.cyan(json_data['ipRangeStart']), blessed_t.yellow("IP range end"), blessed_t.cyan(json_data['ipRangeEnd']))
+    else:
+        print(blessed_t.move_right, blessed_t.move_right, blessed_t.yellow("NetName"), blessed_t.cyan(json_data['netName']), blessed_t.yellow("IP range start"), blessed_t.cyan(json_data['ipRangeStart']), blessed_t.yellow("IP range end"), blessed_t.cyan(json_data['ipRangeEnd']))
 def echo_cve_search(json_data, cve):
     print(blessed_t.blue("Results"), blessed_t.green("{}".format(cve)))
     for cve_entry in json_data['content']:
