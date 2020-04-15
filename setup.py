@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import os
 from setuptools import setup, find_packages
 
@@ -21,9 +22,12 @@ setup(
     long_description='A Python CLI library for interfacing with the Digital Shadows Portal API.',
     install_requires=requirements,
     author='Richard Gold',
+    contact='Charles Ragland',
+    maintainer='Charles Ragland',
     author_email='richard.gold@digitalshadows.com',
+    maintainer_email='charles.ragland@digitalshadows.com',
     license='Copyright (c) 2019 Digital Shadows Ltd',
-    copyright='Copyright (c) 2019 Digital Shadows Ltd',
+#    copyright='Copyright (c) 2019 Digital Shadows Ltd',
     packages=find_packages(),
     entry_points = {
         'console_scripts': ['shadowline=shadowline.shadowline:main'],
