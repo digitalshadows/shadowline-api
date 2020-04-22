@@ -47,9 +47,7 @@ py -3 -m pip install numpy windows-curses
 ```bash
 py -3 -m pip install .
 ```
-Note: Due to incompatibilites with Windows terminals, Windows users will receive an error message regarding terminal settings. This does not interfere with the functionality of the program.
-
-For best results we recommend installing on Linux, or using the Windows Subsystem for Linux.
+# Note: Due to incompatibilites with Windows terminals, Windows users will receive an error message regarding terminal settings. This does not interfere with the functionality of the program. For best results we recommend installing on Linux, or using the Windows Subsystem for Linux.
 
 
 ## Usage
