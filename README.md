@@ -32,10 +32,10 @@ Shadowline can be installed on Windows with a few additional steps, all ran from
 
 1. Install C++ 14.0. This is required for pandas/numpy. It is bundled with Visual Studio, and can be found here: https://visualstudio.microsoft.com/downloads/. 
 
-2. Upgrade pip to the latest version.
+2. Upgrade pip to the latest version, and install/upgrade setuptools and wheel.
 
 ```bash
-py -3 -m pip install --upgrade pip
+py -3 -m pip install --upgrade pip setuptools wheel
 ```
 3. Install numpy and windows-curses manually.
 
