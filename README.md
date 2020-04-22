@@ -13,6 +13,28 @@ Shadowline can be installed on Linux by running from the project root:
 ```bash
 sudo -H pip install .
 ```
+Shadowline can be installed on Windows with a few additional steps, all ran from the project root.
+
+1. Install C++ 14.0. This is required for pandas/numpy. It is bundled with Visual Studio, and can be found here: https://visualstudio.microsoft.com/downloads/. 
+
+2. Upgrade pip to the latest version.
+
+```bash
+py -3 -m pip install --upgrade pip
+```
+3. Install numpy and windows-curses manually.
+
+```bash
+py -3 -m pip install numpy windows-curses
+```
+4. Install the project.
+
+```bash
+py -3 -m pip install .
+```
+Note: Due to incompatibilites with Windows terminals, Windows users will receive an error message regarding terminal settings. This does not interfere with the functionality of the program.
+
+For best results we recommend installing on Linux, or using the Windows Subsystem for Linux.
 
 Shadowline requires the following dependencies:
 
